@@ -5,7 +5,7 @@ import { GeminiModel, getToken } from "../utils.ts"
 
 //https://ai.google.dev/gemini-api/docs/embeddings#javascript_1
 //https://ai.google.dev/gemini-api/docs/embeddings#control-embedding-size
-const GEMINI_EMBEDDING_MODEL = "text-embedding-004"
+const GEMINI_EMBEDDING_MODEL = "gemini-embedding-001"
 //"embedding-001"
 //"gemini-embedding-001"
 const GEMINI_EMBEDDING_MODEL_OUTPUT_DIM = 768

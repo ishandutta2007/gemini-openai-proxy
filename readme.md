@@ -120,6 +120,20 @@ Copy [`main_deno.mjs`](./dist/main_deno.mjs) to `deno deploy`
 
 ### deno
 
+
+#### install deno
+```shell
+curl -fsSL https://deno.land/install.sh | sh
+source ~/.bashrc
+```
+#### build
+
+```shell
+deno task build:deno
+```
+
+#### run 
+
 ```shell
 deno task start:deno
 ```
@@ -135,6 +149,20 @@ node dist/main_node.mjs
 ```shell
 bun dist/main_bun.mjs
 ```
+
+### deploy to cloudflare workers/pages
+
+```shell
+deno task build:deno
+mkdir -p cf
+cp ./dist/main_cloudflare-workers.mjs ./cf/_worker.js
+
+wrangler deploy ./cf/_worker.js --name gemini-openai --compatibility-date 2025-10-04
+
+wrangler pages deploy ./cf --project-name gemini-openai
+
+```
+
 
 ### docker
 

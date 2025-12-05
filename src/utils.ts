@@ -138,6 +138,7 @@ export type KnownGeminiModel =
   | "gemma-3-4b-it"
   | "gemma-3-27b-it"
   | "text-embedding-004"
+  | "gemini-embedding-001"
   | "fmtts"
 const OAI_GEMINI_MAP_DEALFULT_MODEL = "gemma-3-4b-it"
 export type API_VERSION = "v1beta" | "v1" | "v1alpha"
@@ -203,9 +204,9 @@ export const ModelMapping: Readonly<Record<string, KnownGeminiModel>> = {
   "gpt-5": "gemini-2.5-pro", // Best available match
 
   // Embeddings remain good
-  "text-embedding-3-small": "text-embedding-004",
-  "text-embedding-3-large": "text-embedding-004",
-  "text-embedding-ada-002": "text-embedding-004",
+  "text-embedding-3-small": "gemini-embedding-001",
+  "text-embedding-3-large": "gemini-embedding-001",
+  "text-embedding-ada-002": "gemini-embedding-001",
 
   // TTS mapping
   "tts-1": "fmtts", // Keep as is if this works for your use case
