@@ -9,9 +9,26 @@ import { chatProxyHandler } from "./openai/chat/completions/ChatProxyHandler.ts"
 import { embeddingProxyHandler } from "./openai/embeddingProxyHandler.ts"
 import { modelDetail, models } from "./openai/models.ts"
 
-const { preflight, corsify } = cors({ allowHeaders: "*" })
+const { preflight } = cors({ allowHeaders: "*" })
 
-const app = Router<IRequest, Any[], Response>({
+// Patched corsify to handle immutable headers
+const corsify = (response: Response, request?: Request) => {
+  if (response?.headers?.get("access-control-allow-origin") || response.status === 101) {
+    return response;
+  }
+  const origin = request?.headers?.get("origin") || "*";
+  const newHeaders = new Headers(response.headers);
+  newHeaders.append("access-control-allow-origin", origin);
+  newHeaders.append("access-control-allow-methods", "*");
+  newHeaders.append("access-control-allow-headers", "*");
+  return new Response(response.body, { status: response.status, headers: newHeaders });
+}
+// Optional: Define a TypeScript interface for your environment variables for type safety
+interface Environment {
+  TTS_ENDPOINT: string;
+}
+type CFArgs = [Environment];
+const app = Router<IRequest, CFArgs, Response>({
   before: [
     preflight,
     (req) => {

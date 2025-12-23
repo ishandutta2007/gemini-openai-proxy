@@ -3,7 +3,7 @@
 Bring OpenAI style API with low cost.
 
 - Use Gemini models to complete OpenAI API `chat` and `embedding` calls.
-- Use [openai.fm](https://www.openai.fm) to implement `tts-1` model.
+- Use [supertonic](https://huggingface.co/spaces/Supertone/supertonic) to implement `tts-1` model.
 
 ## Introduction
 
@@ -19,20 +19,28 @@ complex development work.
 ## Demo
 
 > Get api key from <https://makersuite.google.com/app/apikey>
+> Deploy supertonic on [huggingface](https://huggingface.co/spaces/nxdev-org/tts) or see [github](https://github.com/waxz/tts), set `TTS_ENDPOINT` in `.dev.vars`
 
 <details open>
 
 <summary>✅ Gemini Pro</summary>
 
+### chat
 ```shell
 curl -s http://localhost:8000/v1/chat/completions \
   -H "Authorization: Bearer $YOUR_GEMINI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-      "model": "gpt-3.5-turbo",
+      "model": "gpt-4",
       "messages": [{"role": "user", "content": "Hello, Who are you?"}],
       "temperature": 0.7
       }'
+```
+
+### tts
+
+```shell
+curl http://localhost:8000/v1/audio/speech   -X POST   -H "Authorization: Bearer $YOUR_GEMINI_API_KEY"   -H "Content-Type: application/json"   -d '{ "input": "Hello secure world!!", "voice": "alloy" ,"model":"tts-1" }'   --output test.wav
 ```
 
 ![demo](./assets/demo.png)
@@ -156,10 +164,12 @@ bun dist/main_bun.mjs
 deno task build:deno
 mkdir -p cf
 cp ./dist/main_cloudflare-workers.mjs ./cf/_worker.js
+npx wrangler dev ./cf/_worker.js --name gemini-openai --compatibility-date 2025-10-04 --port 8000
 
-wrangler deploy ./cf/_worker.js --name gemini-openai --compatibility-date 2025-10-04
 
-wrangler pages deploy ./cf --project-name gemini-openai
+npx wrangler deploy ./cf/_worker.js --name gemini-openai --compatibility-date 2025-10-04
+
+npx wrangler pages deploy ./cf --project-name gemini-openai
 
 ```
 

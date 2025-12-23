@@ -3,7 +3,7 @@ node_modules/
 .idea/
 .vscode/
 .zed/
-
+.dev.vars
 bun.lockb
 pnpm-lock.yaml
 
