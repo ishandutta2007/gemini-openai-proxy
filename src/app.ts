@@ -26,6 +26,7 @@ const corsify = (response: Response, request?: Request) => {
 // Optional: Define a TypeScript interface for your environment variables for type safety
 interface Environment {
   TTS_ENDPOINT: string;
+  TTS_API_KEY: string;
 }
 type CFArgs = [Environment];
 const app = Router<IRequest, CFArgs, Response>({
