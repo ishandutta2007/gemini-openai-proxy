@@ -4,11 +4,12 @@
     "frozen": false
   },
   "tasks": {
-    "start:deno": "deno run --allow-net --allow-env main_deno.ts",
+    "start:deno": "deno run --allow-net --allow-env --sloppy-imports main_deno.ts",
     "build:deno": "deno run -A build.ts",
     "test:deno": "deno test --allow-net --allow-env --coverage --no-check"
   },
   "imports": {
+    "itty-router": "npm:itty-router@^5.0.22",
     "openapi-format": "https://esm.sh/openapi-format?bundle",
     "itty-router/": "npm:/itty-router/",
     "eventsource-parser/": "npm:/eventsource-parser/",

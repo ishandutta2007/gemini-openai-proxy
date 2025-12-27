@@ -29,7 +29,7 @@ interface Environment {
   TTS_API_KEY: string;
 }
 type CFArgs = [Environment];
-const app = Router<IRequest, CFArgs, Response>({
+const app = Router<IRequest, Response>({
   before: [
     preflight,
     (req) => {
