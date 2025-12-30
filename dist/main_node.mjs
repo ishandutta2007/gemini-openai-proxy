@@ -1,4 +1,4 @@
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/@hono/node-server/1.19.5/dist/index.mjs
+// ../../../.cache/deno/npm/registry.npmjs.org/@hono/node-server/1.19.5/dist/index.mjs
 import { createServer as createServerHTTP } from "node:http";
 import { Http2ServerRequest as Http2ServerRequest2 } from "node:http2";
 import { Http2ServerRequest } from "node:http2";
@@ -597,7 +597,7 @@ var serve = (options, listeningListener) => {
   return server;
 };
 
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/itty-router/5.0.22/cors.mjs
+// ../../../.cache/deno/npm/registry.npmjs.org/itty-router/5.0.22/cors.mjs
 var e = (e2 = {}) => {
   const { origin: o = "*", credentials: s = false, allowMethods: c = "*", allowHeaders: r2, exposeHeaders: n, maxAge: t } = e2, a = (e3) => {
     const c2 = e3?.headers.get("origin");
@@ -629,7 +629,7 @@ var e = (e2 = {}) => {
   };
 };
 
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/itty-router/5.0.22/Router.mjs
+// ../../../.cache/deno/npm/registry.npmjs.org/itty-router/5.0.22/Router.mjs
 var r = ({ base: r2 = "", routes: e2 = [], ...a } = {}) => ({
   __proto__: new Proxy({}, {
     get: (a2, t, o, c) => (a3, ...l) => e2.push([
@@ -1311,7 +1311,7 @@ async function ttsProxyHandler(rawReq, ctx) {
   return EdgeProxyHandler(req);
 }
 
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/index.js
+// ../../../.cache/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/index.js
 var ParseError = class extends Error {
   constructor(message, options) {
     super(message), this.name = "ParseError", this.type = options.type, this.field = options.field, this.value = options.value, this.line = options.line;
@@ -1414,7 +1414,7 @@ function splitLines(chunk) {
   ];
 }
 
-// ../../../../Library/Caches/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/stream.js
+// ../../../.cache/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/stream.js
 var EventSourceParserStream = class extends TransformStream {
   constructor({ onError, onRetry, onComment } = {}) {
     let parser;
