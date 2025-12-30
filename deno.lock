@@ -1,100 +1,106 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@std/assert@*": "1.0.13",
-    "jsr:@std/assert@^1.0.12": "1.0.13",
-    "jsr:@std/assert@^1.0.13": "1.0.13",
-    "jsr:@std/expect@*": "1.0.15",
-    "jsr:@std/fs@*": "1.0.17",
-    "jsr:@std/internal@^1.0.6": "1.0.8",
-    "jsr:@std/internal@^1.0.8": "1.0.8",
-    "jsr:@std/path@^1.0.9": "1.0.9",
-    "jsr:@std/testing@*": "1.0.13",
-    "jsr:@std/yaml@*": "1.0.5",
-    "npm:@hono/node-server@*": "1.14.1_hono@4.7.9",
-    "npm:eventsource-parser@*": "3.0.1",
-    "npm:itty-router@*": "5.0.18"
+    "jsr:@std/assert@*": "1.0.15",
+    "jsr:@std/assert@^1.0.14": "1.0.15",
+    "jsr:@std/assert@^1.0.15": "1.0.15",
+    "jsr:@std/expect@*": "1.0.17",
+    "jsr:@std/fs@*": "1.0.20",
+    "jsr:@std/internal@^1.0.10": "1.0.12",
+    "jsr:@std/internal@^1.0.12": "1.0.12",
+    "jsr:@std/path@^1.1.3": "1.1.3",
+    "jsr:@std/testing@*": "1.0.16",
+    "jsr:@std/yaml@*": "1.0.10",
+    "npm:@hono/node-server@*": "1.19.5_hono@4.10.2",
+    "npm:eventsource-parser@*": "3.0.6",
+    "npm:itty-router@*": "5.0.22",
+    "npm:itty-router@^5.0.22": "5.0.22"
   },
   "jsr": {
-    "@std/assert@1.0.13": {
-      "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
+    "@std/assert@1.0.15": {
+      "integrity": "d64018e951dbdfab9777335ecdb000c0b4e3df036984083be219ce5941e4703b",
       "dependencies": [
-        "jsr:@std/internal@^1.0.6"
+        "jsr:@std/internal@^1.0.12"
       ]
     },
-    "@std/expect@1.0.15": {
-      "integrity": "eca360007b5a7f13dbfa1294224baee7fb98dcd460d8461fe64eeae302902945",
+    "@std/expect@1.0.17": {
+      "integrity": "316b47dd65c33e3151344eb3267bf42efba17d1415425f07ed96185d67fc04d9",
       "dependencies": [
-        "jsr:@std/assert@^1.0.12",
-        "jsr:@std/internal@^1.0.6"
+        "jsr:@std/assert@^1.0.14",
+        "jsr:@std/internal@^1.0.10"
       ]
     },
-    "@std/fs@1.0.17": {
-      "integrity": "1c00c632677c1158988ef7a004cb16137f870aafdb8163b9dce86ec652f3952b",
+    "@std/fs@1.0.20": {
+      "integrity": "e953206aae48d46ee65e8783ded459f23bec7dd1f3879512911c35e5484ea187",
       "dependencies": [
+        "jsr:@std/internal@^1.0.12",
         "jsr:@std/path"
       ]
     },
-    "@std/internal@1.0.8": {
-      "integrity": "fc66e846d8d38a47cffd274d80d2ca3f0de71040f855783724bb6b87f60891f5"
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
-    "@std/path@1.0.9": {
-      "integrity": "260a49f11edd3db93dd38350bf9cd1b4d1366afa98e81b86167b4e3dd750129e"
-    },
-    "@std/testing@1.0.13": {
-      "integrity": "74418be16f627dfe996937ab0ffbdbda9c1f35534b78724658d981492f121e71",
+    "@std/path@1.1.3": {
+      "integrity": "b015962d82a5e6daea980c32b82d2c40142149639968549c649031a230b1afb3",
       "dependencies": [
-        "jsr:@std/assert@^1.0.13",
-        "jsr:@std/internal@^1.0.8"
+        "jsr:@std/internal@^1.0.12"
       ]
     },
-    "@std/yaml@1.0.5": {
-      "integrity": "71ba3d334305ee2149391931508b2c293a8490f94a337eef3a09cade1a2a2742"
+    "@std/testing@1.0.16": {
+      "integrity": "a917ffdeb5924c9be436dc78bc32e511760e14d3a96e49c607fc5ecca86d0092",
+      "dependencies": [
+        "jsr:@std/assert@^1.0.15",
+        "jsr:@std/internal@^1.0.12"
+      ]
+    },
+    "@std/yaml@1.0.10": {
+      "integrity": "245706ea3511cc50c8c6d00339c23ea2ffa27bd2c7ea5445338f8feff31fa58e"
     }
   },
   "npm": {
-    "@hono/node-server@1.14.1_hono@4.7.9": {
-      "integrity": "sha512-vmbuM+HPinjWzPe7FFPWMMQMsbKE9gDPhaH0FFdqbGpkT5lp++tcWDTxwBl5EgS5y6JVgIaCdjeHRfQ4XRBRjQ==",
+    "@hono/node-server@1.19.5_hono@4.10.2": {
+      "integrity": "sha512-iBuhh+uaaggeAuf+TftcjZyWh2GEgZcVGXkNtskLVoWaXhnJtC5HLHrU8W1KHDoucqO1MswwglmkWLFyiDn4WQ==",
       "dependencies": [
         "hono"
       ]
     },
-    "eventsource-parser@3.0.1": {
-      "integrity": "sha512-VARTJ9CYeuQYb0pZEPbzi740OWFgpHe7AYJ2WFZVnUDUQp5Dk2yJUgF36YsZ81cOyxT0QxmXD2EQpapAouzWVA=="
+    "eventsource-parser@3.0.6": {
+      "integrity": "sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg=="
     },
-    "hono@4.7.9": {
-      "integrity": "sha512-/EsCoR5h7N4yu01TDu9GMCCJa6ZLk5ZJIWFFGNawAXmd1Tp53+Wir4xm0D2X19bbykWUlzQG0+BvPAji6p9E8Q=="
+    "hono@4.10.2": {
+      "integrity": "sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg=="
     },
-    "itty-router@5.0.18": {
-      "integrity": "sha512-mK3ReOt4ARAGy0V0J7uHmArG2USN2x0zprZ+u+YgmeRjXTDbaowDy3kPcsmQY6tH+uHhDgpWit9Vqmv/4rTXwA=="
+    "itty-router@5.0.22": {
+      "integrity": "sha512-9hmdGErWdYDOurGYxSbqLhy4EFReIwk71hMZTJ5b+zfa2zjMNV1ftFno2b8VjAQvX615gNB8Qxbl9JMRqHnIVA=="
     }
   },
   "redirects": {
     "https://esm.sh/buffer-from@^1.0.0?target=denonext": "https://esm.sh/buffer-from@1.1.2?target=denonext",
-    "https://esm.sh/openapi-format?bundle": "https://esm.sh/openapi-format@1.25.2?bundle",
+    "https://esm.sh/openapi-format?bundle": "https://esm.sh/openapi-format@1.29.2?bundle",
     "https://esm.sh/source-map-support?target=denonext": "https://esm.sh/source-map-support@0.5.21?target=denonext",
     "https://esm.sh/source-map@^0.6.0?target=denonext": "https://esm.sh/source-map@0.6.1?target=denonext",
-    "https://esm.sh/typescript@^5.x?target=denonext": "https://esm.sh/typescript@5.8.3?target=denonext"
+    "https://esm.sh/typescript@^5.x?target=denonext": "https://esm.sh/typescript@5.9.3?target=denonext"
   },
   "remote": {
     "https://esm.sh/buffer-from@1.1.2/denonext/buffer-from.mjs": "dafdfaf9205bdc33bcde4f4a22014fa78b325c07e25d3f0316c8a609076ec2ad",
     "https://esm.sh/buffer-from@1.1.2?target=denonext": "0333d3eb82fde733d4b26ae6558a3b7fca98fd7192fc2ffb1c0714522199e02e",
-    "https://esm.sh/openapi-format@1.25.2/denonext/openapi-format.bundle.mjs": "4488822117e3dd6835db3fc46d49ebb26f5d526851c6759c8c4f59bc013aef19",
-    "https://esm.sh/openapi-format@1.25.2?bundle": "3346221f7e13a55baa4c356a7515451d283119a30fd3a21e7c91ce2bd0f5bf3f",
+    "https://esm.sh/openapi-format@1.29.2/denonext/openapi-format.bundle.mjs": "09139934414fa5cc0f4d5a16617757dabd314f021fc7790992b856a4d79eae71",
+    "https://esm.sh/openapi-format@1.29.2?bundle": "45a4fc03f54344e37ea9a4836dddc274418104a4e45b7d2de08d0754df3789f2",
     "https://esm.sh/openapi-typescript@7.6.1/denonext/openapi-typescript.bundle.mjs": "9d8b10f9b72d18e5c7d394fbe09eeb695288996112fe2476cfc42b6e0775fb7c",
     "https://esm.sh/openapi-typescript@7.6.1?bundle": "2cc367e53f4d3a4928f2bda9df8d11a440430f7359714eb1f28a344024ae570c",
     "https://esm.sh/source-map-support@0.5.21/denonext/source-map-support.mjs": "07b16eadac43d9ab36c92c0860425b2e07844575fe7c3a19fa0e5c5118d38951",
     "https://esm.sh/source-map-support@0.5.21?target=denonext": "abc0f37c6b4b5704ca31e8f1d1679618692911fab29f65a472ae650db67c9307",
     "https://esm.sh/source-map@0.6.1/denonext/source-map.mjs": "ed3f2cf0c5f9561924c9b923ea8ffc24709ae31f1a90dd6c67be04c99598f626",
     "https://esm.sh/source-map@0.6.1?target=denonext": "3803db0ea481a551d1b0f98b57c3b32597fe2c03a5204fbec3aa58d1892f5fa0",
-    "https://esm.sh/typescript@5.8.3/denonext/typescript.mjs": "cde4883960c4c2ed51d5661366700990733a42f1c8dffb22d315ddb7c1b47785",
-    "https://esm.sh/typescript@5.8.3?target=denonext": "c06d879ea64f4a952f9d58ebf89e57eb952fca8832aaca8aa0fed8abdebdf65d"
+    "https://esm.sh/typescript@5.9.3/denonext/typescript.mjs": "6486186025c9617b64436ed7373c5f80fb5e27aaa469367cb55dce16c1ae262e",
+    "https://esm.sh/typescript@5.9.3?target=denonext": "8444891231375e9b3ab2908397af30bba2a199607348135480fb72b82427a388"
   },
   "workspace": {
     "dependencies": [
       "npm:@hono/node-server@*",
       "npm:eventsource-parser@*",
-      "npm:itty-router@*"
+      "npm:itty-router@*",
+      "npm:itty-router@^5.0.22"
     ]
   }
 }

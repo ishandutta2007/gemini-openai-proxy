@@ -35,7 +35,7 @@ declare global {
  */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { Context } from './context'
+import type { Context } from "./context.ts"
 import type {
   IfAnyThenEmptyObject,
   IsAny,
@@ -43,9 +43,9 @@ import type {
   RemoveBlankRecord,
   Simplify,
   UnionToIntersection,
-} from './utils/types'
-import type { CustomHeader, RequestHeader } from './utils/headers'
-import type { StatusCode } from './utils/http-status'
+} from "./utils/types.ts"
+import type { CustomHeader, RequestHeader } from "./utils/headers.ts"
+import type { StatusCode } from "./utils/http-status.ts"
 ////////////////////////////////////////
 //////                            //////
 //////           Values           //////

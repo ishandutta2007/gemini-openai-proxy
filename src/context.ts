@@ -12,12 +12,12 @@ import type {
   RouterRoute,
   TypedResponse,
   Result
-} from './types'
-import type { ResponseHeader } from './utils/headers'
-import { HtmlEscapedCallbackPhase, resolveCallback } from './utils/html'
-import type { ContentfulStatusCode, RedirectStatusCode, StatusCode } from './utils/http-status'
-import type { BaseMime } from './utils/mime'
-import type { InvalidJSONValue, IsAny, JSONParsed, JSONValue } from './utils/types'
+} from "./types.ts"
+import type { ResponseHeader } from "./utils/headers.ts"
+import { HtmlEscapedCallbackPhase, resolveCallback } from "./utils/html.ts"
+import type { ContentfulStatusCode, RedirectStatusCode, StatusCode } from "./utils/http-status.ts"
+import type { BaseMime } from "./utils/mime.ts"
+import type { InvalidJSONValue, IsAny, JSONParsed, JSONValue } from "./utils/types.ts"
 
 type HeaderRecord =
   | Record<'Content-Type', BaseMime>

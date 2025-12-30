@@ -7,14 +7,14 @@ export interface TTSParam {
 }
 
 async function hmacSha256(key: Uint8Array, data: string): Promise<Uint8Array> {
-  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: { name: "SHA-256" } }, false, [
+  const cryptoKey = await crypto.subtle.importKey("raw", key as unknown as BufferSource, { name: "HMAC", hash: { name: "SHA-256" } }, false, [
     "sign",
   ])
   const signature = await crypto.subtle.sign("HMAC", cryptoKey, new TextEncoder().encode(data))
   return new Uint8Array(signature)
 }
 
-async function base64ToBytes(base64: string): Promise<Uint8Array> {
+function base64ToBytes(base64: string): Uint8Array {
   const binaryString = atob(base64)
   const bytes = new Uint8Array(binaryString.length)
   for (let i = 0; i < binaryString.length; i++) {
@@ -23,7 +23,7 @@ async function base64ToBytes(base64: string): Promise<Uint8Array> {
   return bytes
 }
 
-async function bytesToBase64(bytes: Uint8Array): Promise<string> {
+function bytesToBase64(bytes: Uint8Array): string {
   return btoa(String.fromCharCode.apply(null, Array.from(bytes)))
 }
 
@@ -37,11 +37,11 @@ export async function sign(urlStr: string): Promise<string> {
   const uuidStr = uuid()
   const formattedDate = dateFormat()
   const bytesToSign = `MSTranslatorAndroidApp${encodedUrl}${formattedDate}${uuidStr}`.toLowerCase()
-  const decode = await base64ToBytes(
+  const decode = base64ToBytes(
     "oik6PdDdMnOXemTbwvMn9de/h9lFnfBaCWbGMMZqqoSaQaqUOqjVGm5NqsmjcBI1x+sS9ugjB55HEJWRiFXYFw==",
   )
   const signData = await hmacSha256(decode, bytesToSign)
-  const signBase64 = await bytesToBase64(signData)
+  const signBase64 = bytesToBase64(signData)
   return `MSTranslatorAndroidApp::${signBase64}::${formattedDate}::${uuidStr}`
 }
 
@@ -50,7 +50,7 @@ function dateFormat(): string {
   return formattedDate.toLowerCase()
 }
 
-export function splitAndMerge(str: string, chunkSize: number, determin) {
+export function splitAndMerge(str: string, chunkSize: number, determin: string) {
   const sentences = str.split(determin)
   const result: Array<string> = []
   let currentChunk: Array<string> = []

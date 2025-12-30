@@ -8,22 +8,25 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** **Starting a new project?** We recommend trying [Responses](/docs/api-reference/responses)
+        /**
+         * Create chat completion
+         * @description **Starting a new project?** We recommend trying [Responses](https://platform.openai.com/docs/api-reference/responses)
          *     to take advantage of the latest OpenAI platform features. Compare
-         *     [Chat Completions with Responses](/docs/guides/responses-vs-chat-completions?api-mode=responses).
+         *     [Chat Completions with Responses](https://platform.openai.com/docs/guides/responses-vs-chat-completions?api-mode=responses).
          *
          *     ---
          *
          *     Creates a model response for the given chat conversation. Learn more in the
-         *     [text generation](/docs/guides/text-generation), [vision](/docs/guides/vision),
-         *     and [audio](/docs/guides/audio) guides.
+         *     [text generation](https://platform.openai.com/docs/guides/text-generation), [vision](https://platform.openai.com/docs/guides/vision),
+         *     and [audio](https://platform.openai.com/docs/guides/audio) guides.
          *
          *     Parameter support can differ depending on the model used to generate the
          *     response, particularly for newer reasoning models. Parameters that are only
          *     supported for reasoning models are noted below. For the current state of
          *     unsupported parameters in reasoning models,
-         *     [refer to the reasoning guide](/docs/guides/reasoning).
-         *      */
+         *     [refer to the reasoning guide](https://platform.openai.com/docs/guides/reasoning).
+         *
+         */
         post: operations["createChatCompletion"];
         delete?: never;
         options?: never;
@@ -40,7 +43,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Creates an embedding vector representing the input text. */
+        /**
+         * Create embeddings
+         * @description Creates an embedding vector representing the input text.
+         */
         post: operations["createEmbedding"];
         delete?: never;
         options?: never;
@@ -55,7 +61,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Lists the currently available models, and provides basic information about each one such as the owner and availability. */
+        /**
+         * List models
+         * @description Lists the currently available models, and provides basic information about each one such as the owner and availability.
+         */
         get: operations["listModels"];
         put?: never;
         post?: never;
@@ -66,9 +75,658 @@ export interface paths {
         trace?: never;
     };
 }
-export type webhooks = Record<string, never>;
+export interface webhooks {
+    batch_cancelled: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookBatchCancelled"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    batch_completed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookBatchCompleted"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    batch_expired: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookBatchExpired"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    batch_failed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookBatchFailed"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    eval_run_canceled: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookEvalRunCanceled"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    eval_run_failed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookEvalRunFailed"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    eval_run_succeeded: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookEvalRunSucceeded"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    fine_tuning_job_cancelled: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookFineTuningJobCancelled"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    fine_tuning_job_failed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookFineTuningJobFailed"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    fine_tuning_job_succeeded: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookFineTuningJobSucceeded"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    realtime_call_incoming: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookRealtimeCallIncoming"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    response_cancelled: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookResponseCancelled"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    response_completed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookResponseCompleted"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    response_failed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookResponseFailed"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    response_incomplete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The event payload sent by the API. */
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebhookResponseIncomplete"];
+                };
+            };
+            responses: {
+                /** @description Return a 200 status code to acknowledge receipt of the event. Non-200
+                 *     status codes will be retried.
+                 *      */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+}
 export interface components {
     schemas: {
+        /**
+         * Allowed tools
+         * @description Constrains the tools available to the model to a pre-defined set.
+         *
+         */
+        ChatCompletionAllowedTools: {
+            /**
+             * @description Constrains the tools available to the model to a pre-defined set.
+             *
+             *     `auto` allows the model to pick from among the allowed tools and generate a
+             *     message.
+             *
+             *     `required` requires the model to call one or more of the allowed tools.
+             *
+             * @enum {string}
+             */
+            mode: "auto" | "required";
+            /** @description A list of tool definitions that the model should be allowed to call.
+             *
+             *     For the Chat Completions API, the list of tool definitions might look like:
+             *     ```json
+             *     [
+             *       { "type": "function", "function": { "name": "get_weather" } },
+             *       { "type": "function", "function": { "name": "get_time" } }
+             *     ]
+             *     ```
+             *      */
+            tools: {
+                [key: string]: unknown;
+            }[];
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * Allowed tools
+         * @description Constrains the tools available to the model to a pre-defined set.
+         *
+         */
+        ChatCompletionAllowedToolsChoice: {
+            allowed_tools: components["schemas"]["ChatCompletionAllowedTools"];
+            /**
+             * @description Allowed tool configuration type. Always `allowed_tools`.
+             * @enum {string}
+             */
+            type: "allowed_tools";
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Specifying a particular function via `{"name": "my_function"}` forces the model to call that function.
          *      */
         ChatCompletionFunctionCallOption: {
@@ -87,6 +745,36 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /**
+         * Custom tool call
+         * @description A call to a custom tool created by the model.
+         *
+         */
+        ChatCompletionMessageCustomToolCall: {
+            /** @description The custom tool that the model called. */
+            custom: {
+                /** @description The input for the custom tool call generated by the model. */
+                input: string;
+                /** @description The name of the custom tool to call. */
+                name: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The ID of the tool call. */
+            id: string;
+            /**
+             * @description The type of the tool. Always `custom`.
+             * @enum {string}
+             */
+            type: "custom";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * Function tool call
+         * @description A call to a function tool created by the model.
+         *
+         */
         ChatCompletionMessageToolCall: {
             /** @description The function that the model called. */
             function: {
@@ -128,8 +816,11 @@ export interface components {
             [key: string]: unknown;
         };
         /** @description The tool calls generated by the model, such as function calls. */
-        ChatCompletionMessageToolCalls: components["schemas"]["ChatCompletionMessageToolCall"][];
-        /** @description Specifies a tool the model should use. Use to force the model to call a specific function. */
+        ChatCompletionMessageToolCalls: (components["schemas"]["ChatCompletionMessageToolCall"] | components["schemas"]["ChatCompletionMessageCustomToolCall"])[];
+        /**
+         * Function tool choice
+         * @description Specifies a tool the model should use. Use to force the model to call a specific function.
+         */
         ChatCompletionNamedToolChoice: {
             function: {
                 /** @description The name of the function to call. */
@@ -138,10 +829,29 @@ export interface components {
                 [key: string]: unknown;
             };
             /**
-             * @description The type of the tool. Currently, only `function` is supported.
+             * @description For function calling, the type is always `function`.
              * @enum {string}
              */
             type: "function";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * Custom tool choice
+         * @description Specifies a tool the model should use. Use to force the model to call a specific custom tool.
+         */
+        ChatCompletionNamedToolChoiceCustom: {
+            custom: {
+                /** @description The name of the custom tool to call. */
+                name: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /**
+             * @description For custom tool calling, the type is always `custom`.
+             * @enum {string}
+             */
+            type: "custom";
         } & {
             [key: string]: unknown;
         };
@@ -151,9 +861,6 @@ export interface components {
          *
          */
         ChatCompletionRequestAssistantMessage: {
-            /** @description Data about a previous audio response from the model.
-             *     [Learn more](/docs/guides/audio).
-             *      */
             audio?: ({
                 /** @description Unique identifier for a previous audio response from the model.
                  *      */
@@ -161,13 +868,7 @@ export interface components {
             } & {
                 [key: string]: unknown;
             }) | null;
-            /** @description The contents of the assistant message. Required unless `tool_calls` or `function_call` is specified.
-             *      */
             content?: (string | components["schemas"]["ChatCompletionRequestAssistantMessageContentPart"][]) | null;
-            /**
-             * @deprecated
-             * @description Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.
-             */
             function_call?: ({
                 /** @description The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function. */
                 arguments: string;
@@ -178,7 +879,6 @@ export interface components {
             }) | null;
             /** @description An optional name for the participant. Provides the model information to differentiate between participants of the same role. */
             name?: string;
-            /** @description The refusal message by the assistant. */
             refusal?: string | null;
             /**
              * @description The role of the messages author, in this case `assistant`.
@@ -215,7 +915,6 @@ export interface components {
          * @deprecated
          */
         ChatCompletionRequestFunctionMessage: {
-            /** @description The contents of the function message. */
             content: string | null;
             /** @description The name of the function to call. */
             name: string;
@@ -230,7 +929,7 @@ export interface components {
         ChatCompletionRequestMessage: components["schemas"]["ChatCompletionRequestDeveloperMessage"] | components["schemas"]["ChatCompletionRequestSystemMessage"] | components["schemas"]["ChatCompletionRequestUserMessage"] | components["schemas"]["ChatCompletionRequestAssistantMessage"] | components["schemas"]["ChatCompletionRequestToolMessage"] | components["schemas"]["ChatCompletionRequestFunctionMessage"];
         /**
          * Audio content part
-         * @description Learn about [audio inputs](/docs/guides/audio).
+         * @description Learn about [audio inputs](https://platform.openai.com/docs/guides/audio).
          *
          */
         ChatCompletionRequestMessageContentPartAudio: {
@@ -256,7 +955,7 @@ export interface components {
         };
         /**
          * File content part
-         * @description Learn about [file inputs](/docs/guides/text) for text generation.
+         * @description Learn about [file inputs](https://platform.openai.com/docs/guides/text) for text generation.
          *
          */
         ChatCompletionRequestMessageContentPartFile: {
@@ -285,13 +984,13 @@ export interface components {
         };
         /**
          * Image content part
-         * @description Learn about [image inputs](/docs/guides/vision).
+         * @description Learn about [image inputs](https://platform.openai.com/docs/guides/vision).
          *
          */
         ChatCompletionRequestMessageContentPartImage: {
             image_url: {
                 /**
-                 * @description Specifies the detail level of the image. Learn more in the [Vision guide](/docs/guides/vision#low-or-high-fidelity-image-understanding).
+                 * @description Specifies the detail level of the image. Learn more in the [Vision guide](https://platform.openai.com/docs/guides/vision#low-or-high-fidelity-image-understanding).
                  * @default auto
                  * @enum {string}
                  */
@@ -326,7 +1025,7 @@ export interface components {
         };
         /**
          * Text content part
-         * @description Learn about [text inputs](/docs/guides/text-generation).
+         * @description Learn about [text inputs](https://platform.openai.com/docs/guides/text-generation).
          *
          */
         ChatCompletionRequestMessageContentPartText: {
@@ -400,7 +1099,7 @@ export interface components {
         /** @description A chat completion message generated by the model. */
         ChatCompletionResponseMessage: {
             /** @description Annotations for the message, when applicable, as when using the
-             *     [web search tool](/docs/guides/tools-web-search?api-mode=chat).
+             *     [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
              *      */
             annotations?: ({
                 /**
@@ -424,9 +1123,6 @@ export interface components {
             } & {
                 [key: string]: unknown;
             })[];
-            /** @description If the audio output modality is requested, this object contains data
-             *     about the audio response from the model. [Learn more](/docs/guides/audio).
-             *      */
             audio?: ({
                 /** @description Base64 encoded audio bytes generated by the model, in the format
                  *     specified in the request.
@@ -444,7 +1140,6 @@ export interface components {
             } & {
                 [key: string]: unknown;
             }) | null;
-            /** @description The contents of the message. */
             content: string | null;
             /**
              * @deprecated
@@ -458,7 +1153,6 @@ export interface components {
             } & {
                 [key: string]: unknown;
             };
-            /** @description The refusal message generated by the model. */
             refusal: string | null;
             /**
              * @description The role of the author of this message.
@@ -469,12 +1163,16 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        /**
-         * @description Options for streaming response. Only set this when you set `stream: true`.
-         *
-         * @default null
-         */
         ChatCompletionStreamOptions: ({
+            /** @description When true, stream obfuscation will be enabled. Stream obfuscation adds
+             *     random characters to an `obfuscation` field on streaming delta events to
+             *     normalize payload sizes as a mitigation to certain side-channel attacks.
+             *     These obfuscation fields are included by default, but add a small amount
+             *     of overhead to the data stream. You can set `include_obfuscation` to
+             *     false to optimize for bandwidth if you trust the network links between
+             *     your application and the OpenAI API.
+             *      */
+            include_obfuscation?: boolean;
             /** @description If set, an additional chunk will be streamed before the `data: [DONE]`
              *     message. The `usage` field on this chunk shows the token usage statistics
              *     for the entire request, and the `choices` field will always be an empty
@@ -490,7 +1188,6 @@ export interface components {
         }) | null;
         /** @description A chat completion delta generated by streamed model responses. */
         ChatCompletionStreamResponseDelta: {
-            /** @description The contents of the chunk message. */
             content?: string | null;
             /**
              * @deprecated
@@ -504,7 +1201,6 @@ export interface components {
             } & {
                 [key: string]: unknown;
             };
-            /** @description The refusal message generated by the model. */
             refusal?: string | null;
             /**
              * @description The role of the author of this message.
@@ -516,7 +1212,6 @@ export interface components {
             [key: string]: unknown;
         };
         ChatCompletionTokenLogprob: {
-            /** @description A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token. */
             bytes: number[] | null;
             /** @description The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely. */
             logprob: number;
@@ -524,7 +1219,6 @@ export interface components {
             token: string;
             /** @description List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned. */
             top_logprobs: ({
-                /** @description A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token. */
                 bytes: number[] | null;
                 /** @description The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely. */
                 logprob: number;
@@ -536,6 +1230,11 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /**
+         * Function tool
+         * @description A function tool that can be used to generate a response.
+         *
+         */
         ChatCompletionTool: {
             function: components["schemas"]["FunctionObject"];
             /**
@@ -554,7 +1253,9 @@ export interface components {
          *
          *     `none` is the default when no tools are present. `auto` is the default if tools are present.
          *      */
-        ChatCompletionToolChoiceOption: ("none" | "auto" | "required") | components["schemas"]["ChatCompletionNamedToolChoice"];
+        ChatCompletionToolChoiceOption: ("none" | "auto" | "required") | components["schemas"]["ChatCompletionAllowedToolsChoice"] | components["schemas"]["ChatCompletionNamedToolChoice"] | components["schemas"]["ChatCompletionNamedToolChoiceCustom"];
+        /** @enum {string} */
+        ChatModel: "gpt-5.2" | "gpt-5.2-2025-12-11" | "gpt-5.2-chat-latest" | "gpt-5.2-pro" | "gpt-5.2-pro-2025-12-11" | "gpt-5.1" | "gpt-5.1-2025-11-13" | "gpt-5.1-codex" | "gpt-5.1-mini" | "gpt-5.1-chat-latest" | "gpt-5" | "gpt-5-mini" | "gpt-5-nano" | "gpt-5-2025-08-07" | "gpt-5-mini-2025-08-07" | "gpt-5-nano-2025-08-07" | "gpt-5-chat-latest" | "gpt-4.1" | "gpt-4.1-mini" | "gpt-4.1-nano" | "gpt-4.1-2025-04-14" | "gpt-4.1-mini-2025-04-14" | "gpt-4.1-nano-2025-04-14" | "o4-mini" | "o4-mini-2025-04-16" | "o3" | "o3-2025-04-16" | "o3-mini" | "o3-mini-2025-01-31" | "o1" | "o1-2024-12-17" | "o1-preview" | "o1-preview-2024-09-12" | "o1-mini" | "o1-mini-2024-09-12" | "gpt-4o" | "gpt-4o-2024-11-20" | "gpt-4o-2024-08-06" | "gpt-4o-2024-05-13" | "gpt-4o-audio-preview" | "gpt-4o-audio-preview-2024-10-01" | "gpt-4o-audio-preview-2024-12-17" | "gpt-4o-audio-preview-2025-06-03" | "gpt-4o-mini-audio-preview" | "gpt-4o-mini-audio-preview-2024-12-17" | "gpt-4o-search-preview" | "gpt-4o-mini-search-preview" | "gpt-4o-search-preview-2025-03-11" | "gpt-4o-mini-search-preview-2025-03-11" | "chatgpt-4o-latest" | "codex-mini-latest" | "gpt-4o-mini" | "gpt-4o-mini-2024-07-18" | "gpt-4-turbo" | "gpt-4-turbo-2024-04-09" | "gpt-4-0125-preview" | "gpt-4-turbo-preview" | "gpt-4-1106-preview" | "gpt-4-vision-preview" | "gpt-4" | "gpt-4-0314" | "gpt-4-0613" | "gpt-4-32k" | "gpt-4-32k-0314" | "gpt-4-32k-0613" | "gpt-3.5-turbo" | "gpt-3.5-turbo-16k" | "gpt-3.5-turbo-0301" | "gpt-3.5-turbo-0613" | "gpt-3.5-turbo-1106" | "gpt-3.5-turbo-0125" | "gpt-3.5-turbo-16k-0613";
         /** @description Usage statistics for the completion request. */
         CompletionUsage: {
             /**
@@ -624,7 +1325,7 @@ export interface components {
         };
         CreateChatCompletionRequest: components["schemas"]["CreateModelResponseProperties"] & ({
             /** @description Parameters for audio output. Required when audio output is requested with
-             *     `modalities: ["audio"]`. [Learn more](/docs/guides/audio).
+             *     `modalities: ["audio"]`. [Learn more](https://platform.openai.com/docs/guides/audio).
              *      */
             audio?: ({
                 /**
@@ -700,7 +1401,7 @@ export interface components {
              * @default false
              */
             logprobs: boolean | null;
-            /** @description An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and [reasoning tokens](/docs/guides/reasoning).
+            /** @description An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and [reasoning tokens](https://platform.openai.com/docs/guides/reasoning).
              *      */
             max_completion_tokens?: number | null;
             /**
@@ -710,20 +1411,20 @@ export interface components {
              *     [costs](https://openai.com/api/pricing/) for text generated via API.
              *
              *     This value is now deprecated in favor of `max_completion_tokens`, and is
-             *     not compatible with [o-series models](/docs/guides/reasoning).
+             *     not compatible with [o-series models](https://platform.openai.com/docs/guides/reasoning).
              *
              */
             max_tokens?: number | null;
             /** @description A list of messages comprising the conversation so far. Depending on the
-             *     [model](/docs/models) you use, different message types (modalities) are
-             *     supported, like [text](/docs/guides/text-generation),
-             *     [images](/docs/guides/vision), and [audio](/docs/guides/audio).
+             *     [model](https://platform.openai.com/docs/models) you use, different message types (modalities) are
+             *     supported, like [text](https://platform.openai.com/docs/guides/text-generation),
+             *     [images](https://platform.openai.com/docs/guides/vision), and [audio](https://platform.openai.com/docs/guides/audio).
              *      */
             messages: components["schemas"]["ChatCompletionRequestMessage"][];
             modalities?: components["schemas"]["ResponseModalities"];
             /** @description Model ID used to generate the response, like `gpt-4o` or `o3`. OpenAI
              *     offers a wide range of models with different capabilities, performance
-             *     characteristics, and price points. Refer to the [model guide](/docs/models)
+             *     characteristics, and price points. Refer to the [model guide](https://platform.openai.com/docs/models)
              *     to browse and compare available models.
              *      */
             model: components["schemas"]["ModelIdsShared"];
@@ -734,7 +1435,7 @@ export interface components {
              */
             n: number;
             parallel_tool_calls?: components["schemas"]["ParallelToolCalls"];
-            /** @description Configuration for a [Predicted Output](/docs/guides/predicted-outputs),
+            /** @description Configuration for a [Predicted Output](https://platform.openai.com/docs/guides/predicted-outputs),
              *     which can greatly improve response times when large parts of the model
              *     response are known ahead of time. This is most common when you are
              *     regenerating a file with only minor changes to most of the content.
@@ -754,23 +1455,28 @@ export interface components {
              *     Setting to `{ "type": "json_schema", "json_schema": {...} }` enables
              *     Structured Outputs which ensures the model will match your supplied JSON
              *     schema. Learn more in the [Structured Outputs
-             *     guide](/docs/guides/structured-outputs).
+             *     guide](https://platform.openai.com/docs/guides/structured-outputs).
              *
              *     Setting to `{ "type": "json_object" }` enables the older JSON mode, which
              *     ensures the message the model generates is valid JSON. Using `json_schema`
              *     is preferred for models that support it.
              *      */
             response_format?: components["schemas"]["ResponseFormatText"] | components["schemas"]["ResponseFormatJsonSchema"] | components["schemas"]["ResponseFormatJsonObject"];
-            /** @description This feature is in Beta.
+            /**
+             * @deprecated
+             * @description This feature is in Beta.
              *     If specified, our system will make a best effort to sample deterministically, such that repeated requests with the same `seed` and parameters should return the same result.
              *     Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
-             *      */
+             *
+             */
             seed?: number | null;
             stop?: components["schemas"]["StopConfiguration"];
             /**
              * @description Whether or not to store the output of this chat completion request for
-             *     use in our [model distillation](/docs/guides/distillation) or
-             *     [evals](/docs/guides/evals) products.
+             *     use in our [model distillation](https://platform.openai.com/docs/guides/distillation) or
+             *     [evals](https://platform.openai.com/docs/guides/evals) products.
+             *
+             *     Supports text and image inputs. Note: image inputs over 8MB will be dropped.
              *
              * @default false
              */
@@ -778,8 +1484,8 @@ export interface components {
             /**
              * @description If set to true, the model response data will be streamed to the client
              *     as it is generated using [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
-             *     See the [Streaming section below](/docs/api-reference/chat/streaming)
-             *     for more information, along with the [streaming responses](/docs/guides/streaming-responses)
+             *     See the [Streaming section below](https://platform.openai.com/docs/api-reference/chat/streaming)
+             *     for more information, along with the [streaming responses](https://platform.openai.com/docs/guides/streaming-responses)
              *     guide for more information on how to handle the streaming events.
              *
              * @default false
@@ -787,18 +1493,21 @@ export interface components {
             stream: boolean | null;
             stream_options?: components["schemas"]["ChatCompletionStreamOptions"];
             tool_choice?: components["schemas"]["ChatCompletionToolChoiceOption"];
-            /** @description A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for. A max of 128 functions are supported.
+            /** @description A list of tools the model may call. You can provide either
+             *     [custom tools](https://platform.openai.com/docs/guides/function-calling#custom-tools) or
+             *     [function tools](https://platform.openai.com/docs/guides/function-calling).
              *      */
-            tools?: components["schemas"]["ChatCompletionTool"][];
+            tools?: (components["schemas"]["ChatCompletionTool"] | components["schemas"]["CustomToolChatCompletions"])[];
             /** @description An integer between 0 and 20 specifying the number of most likely tokens to
              *     return at each token position, each with an associated log probability.
              *     `logprobs` must be set to `true` if this parameter is used.
              *      */
             top_logprobs?: number | null;
+            verbosity?: components["schemas"]["Verbosity"];
             /**
              * Web search
              * @description This tool searches the web for relevant results to use in a response.
-             *     Learn more about the [web search tool](/docs/guides/tools-web-search?api-mode=chat).
+             *     Learn more about the [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
              *
              */
             web_search_options?: {
@@ -837,11 +1546,8 @@ export interface components {
                 finish_reason: "stop" | "length" | "tool_calls" | "content_filter" | "function_call";
                 /** @description The index of the choice in the list of choices. */
                 index: number;
-                /** @description Log probability information for the choice. */
                 logprobs: ({
-                    /** @description A list of message content tokens with log probability information. */
                     content: components["schemas"]["ChatCompletionTokenLogprob"][] | null;
-                    /** @description A list of message refusal tokens with log probability information. */
                     refusal: components["schemas"]["ChatCompletionTokenLogprob"][] | null;
                 } & {
                     [key: string]: unknown;
@@ -862,10 +1568,13 @@ export interface components {
              */
             object: "chat.completion";
             service_tier?: components["schemas"]["ServiceTier"];
-            /** @description This fingerprint represents the backend configuration that the model runs with.
+            /**
+             * @deprecated
+             * @description This fingerprint represents the backend configuration that the model runs with.
              *
              *     Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
-             *      */
+             *
+             */
             system_fingerprint?: string;
             usage?: components["schemas"]["CompletionUsage"];
         } & {
@@ -873,7 +1582,7 @@ export interface components {
         };
         /** @description Represents a streamed chunk of a chat completion response returned
          *     by the model, based on the provided input.
-         *     [Learn more](/docs/guides/streaming-responses).
+         *     [Learn more](https://platform.openai.com/docs/guides/streaming-responses).
          *      */
         CreateChatCompletionStreamResponse: {
             /** @description A list of chat completion choices. Can contain more than one elements if `n` is greater than 1. Can also be empty for the
@@ -916,9 +1625,12 @@ export interface components {
              */
             object: "chat.completion.chunk";
             service_tier?: components["schemas"]["ServiceTier"];
-            /** @description This fingerprint represents the backend configuration that the model runs with.
+            /**
+             * @deprecated
+             * @description This fingerprint represents the backend configuration that the model runs with.
              *     Can be used in conjunction with the `seed` request parameter to understand when backend changes have been made that might impact determinism.
-             *      */
+             *
+             */
             system_fingerprint?: string;
             /** @description An optional field that will only be present when you set
              *     `stream_options: {"include_usage": true}` in your request. When present, it
@@ -951,13 +1663,13 @@ export interface components {
              */
             input: string | string[] | number[] | number[][];
             /**
-             * @description ID of the model to use. You can use the [List models](/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](/docs/models) for descriptions of them.
+             * @description ID of the model to use. You can use the [List models](https://platform.openai.com/docs/api-reference/models/list) API to see all of your available models, or see our [Model overview](https://platform.openai.com/docs/models) for descriptions of them.
              *
              * @example text-embedding-3-small
              */
             model: string | ("text-embedding-ada-002" | "text-embedding-3-small" | "text-embedding-3-large");
             /**
-             * @description A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids).
+             * @description A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
              *
              * @example user-1234
              */
@@ -987,11 +1699,80 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        CreateModelResponseProperties: components["schemas"]["ModelResponseProperties"];
+        CreateModelResponseProperties: components["schemas"]["ModelResponseProperties"] & ({
+            /** @description An integer between 0 and 20 specifying the number of most likely tokens to
+             *     return at each token position, each with an associated log probability.
+             *      */
+            top_logprobs?: number;
+        } & {
+            [key: string]: unknown;
+        });
+        /**
+         * Custom tool
+         * @description A custom tool that processes input using a specified format.
+         *
+         */
+        CustomToolChatCompletions: {
+            /**
+             * Custom tool properties
+             * @description Properties of the custom tool.
+             *
+             */
+            custom: {
+                /** @description Optional description of the custom tool, used to provide more context.
+                 *      */
+                description?: string;
+                /** @description The input format for the custom tool. Default is unconstrained text.
+                 *      */
+                format?: ({
+                    /**
+                     * @description Unconstrained text format. Always `text`.
+                     * @enum {string}
+                     */
+                    type: "text";
+                } & {
+                    [key: string]: unknown;
+                }) | ({
+                    /**
+                     * Grammar format
+                     * @description Your chosen grammar.
+                     */
+                    grammar: {
+                        /** @description The grammar definition. */
+                        definition: string;
+                        /**
+                         * @description The syntax of the grammar definition. One of `lark` or `regex`.
+                         * @enum {string}
+                         */
+                        syntax: "lark" | "regex";
+                    } & {
+                        [key: string]: unknown;
+                    };
+                    /**
+                     * @description Grammar format. Always `grammar`.
+                     * @enum {string}
+                     */
+                    type: "grammar";
+                } & {
+                    [key: string]: unknown;
+                });
+                /** @description The name of the custom tool, used to identify it in tool calls. */
+                name: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /**
+             * @description The type of the custom tool. Always `custom`.
+             * @enum {string}
+             */
+            type: "custom";
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Represents an embedding vector returned by embedding endpoint.
          *      */
         Embedding: {
-            /** @description The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the [embedding guide](/docs/guides/embeddings).
+            /** @description The embedding vector, which is a list of floats. The length of vector depends on the model as listed in the [embedding guide](https://platform.openai.com/docs/guides/embeddings).
              *      */
             embedding: number[];
             /** @description The index of the embedding in the list of embeddings. */
@@ -1010,15 +1791,11 @@ export interface components {
             /** @description The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64. */
             name: string;
             parameters?: components["schemas"]["FunctionParameters"];
-            /**
-             * @description Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](docs/guides/function-calling).
-             * @default false
-             */
-            strict: boolean | null;
+            strict?: boolean | null;
         } & {
             [key: string]: unknown;
         };
-        /** @description The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+        /** @description The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
          *
          *     Omitting `parameters` defines a function with an empty parameter list. */
         FunctionParameters: {
@@ -1031,13 +1808,6 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        /** @description Set of 16 key-value pairs that can be attached to an object. This can be
-         *     useful for storing additional information about the object in a structured
-         *     format, and querying for objects via API or the dashboard.
-         *
-         *     Keys are strings with a maximum length of 64 characters. Values are strings
-         *     with a maximum length of 512 characters.
-         *      */
         Metadata: {
             [key: string]: string;
         } | null;
@@ -1061,33 +1831,32 @@ export interface components {
             [key: string]: unknown;
         };
         /** @example gpt-4o */
-        ModelIdsShared: string | ("gpt-4.1" | "gpt-4.1-mini" | "gpt-4.1-nano" | "gpt-4.1-2025-04-14" | "gpt-4.1-mini-2025-04-14" | "gpt-4.1-nano-2025-04-14" | "o4-mini" | "o4-mini-2025-04-16" | "o3" | "o3-2025-04-16" | "o3-mini" | "o3-mini-2025-01-31" | "o1" | "o1-2024-12-17" | "o1-preview" | "o1-preview-2024-09-12" | "o1-mini" | "o1-mini-2024-09-12" | "gpt-4o" | "gpt-4o-2024-11-20" | "gpt-4o-2024-08-06" | "gpt-4o-2024-05-13" | "gpt-4o-audio-preview" | "gpt-4o-audio-preview-2024-10-01" | "gpt-4o-audio-preview-2024-12-17" | "gpt-4o-audio-preview-2025-06-03" | "gpt-4o-mini-audio-preview" | "gpt-4o-mini-audio-preview-2024-12-17" | "gpt-4o-search-preview" | "gpt-4o-mini-search-preview" | "gpt-4o-search-preview-2025-03-11" | "gpt-4o-mini-search-preview-2025-03-11" | "chatgpt-4o-latest" | "codex-mini-latest" | "gpt-4o-mini" | "gpt-4o-mini-2024-07-18" | "gpt-4-turbo" | "gpt-4-turbo-2024-04-09" | "gpt-4-0125-preview" | "gpt-4-turbo-preview" | "gpt-4-1106-preview" | "gpt-4-vision-preview" | "gpt-4" | "gpt-4-0314" | "gpt-4-0613" | "gpt-4-32k" | "gpt-4-32k-0314" | "gpt-4-32k-0613" | "gpt-3.5-turbo" | "gpt-3.5-turbo-16k" | "gpt-3.5-turbo-0301" | "gpt-3.5-turbo-0613" | "gpt-3.5-turbo-1106" | "gpt-3.5-turbo-0125" | "gpt-3.5-turbo-16k-0613");
+        ModelIdsShared: string | components["schemas"]["ChatModel"];
         ModelResponseProperties: {
             metadata?: components["schemas"]["Metadata"];
+            /**
+             * @description Used by OpenAI to cache responses for similar requests to optimize your cache hit rates. Replaces the `user` field. [Learn more](https://platform.openai.com/docs/guides/prompt-caching).
+             *
+             * @example prompt-cache-key-1234
+             */
+            prompt_cache_key?: string;
+            prompt_cache_retention?: ("in-memory" | "24h") | null;
+            /**
+             * @description A stable identifier used to help detect users of your application that may be violating OpenAI's usage policies.
+             *     The IDs should be a string that uniquely identifies each user. We recommend hashing their username or email address, in order to avoid sending us any identifying information. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#safety-identifiers).
+             *
+             * @example safety-identifier-1234
+             */
+            safety_identifier?: string;
             service_tier?: components["schemas"]["ServiceTier"];
+            temperature?: number | null;
+            top_logprobs?: number | null;
+            top_p?: number | null;
             /**
-             * @description What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
-             *     We generally recommend altering this or `top_p` but not both.
-             *
-             * @default 1
-             * @example 1
-             */
-            temperature: number;
-            /**
-             * @description An alternative to sampling with temperature, called nucleus sampling,
-             *     where the model considers the results of the tokens with top_p probability
-             *     mass. So 0.1 means only the tokens comprising the top 10% probability mass
-             *     are considered.
-             *
-             *     We generally recommend altering this or `temperature` but not both.
-             *
-             * @default 1
-             * @example 1
-             */
-            top_p: number;
-            /**
-             * @description A stable identifier for your end-users.
-             *     Used to boost cache hit rates by better bucketing similar requests and  to help OpenAI detect and prevent abuse. [Learn more](/docs/guides/safety-best-practices#end-user-ids).
+             * @deprecated
+             * @description This field is being replaced by `safety_identifier` and `prompt_cache_key`. Use `prompt_cache_key` instead to maintain caching optimizations.
+             *     A stable identifier for your end-users.
+             *     Used to boost cache hit rates by better bucketing similar requests and  to help OpenAI detect and prevent abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#safety-identifiers).
              *
              * @example user-1234
              */
@@ -1096,7 +1865,7 @@ export interface components {
             [key: string]: unknown;
         };
         /**
-         * @description Whether to enable [parallel function calling](/docs/guides/function-calling#configuring-parallel-function-calling) during tool use.
+         * @description Whether to enable [parallel function calling](https://platform.openai.com/docs/guides/function-calling#configuring-parallel-function-calling) during tool use.
          * @default true
          */
         ParallelToolCalls: boolean;
@@ -1122,19 +1891,7 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        /**
-         * @description **o-series models only**
-         *
-         *     Constrains effort on reasoning for
-         *     [reasoning models](https://platform.openai.com/docs/guides/reasoning).
-         *     Currently supported values are `low`, `medium`, and `high`. Reducing
-         *     reasoning effort can result in faster responses and fewer tokens used
-         *     on reasoning in a response.
-         *
-         * @default medium
-         * @enum {string|null}
-         */
-        ReasoningEffort: "low" | "medium" | "high";
+        ReasoningEffort: ("none" | "minimal" | "low" | "medium" | "high" | "xhigh") | null;
         /**
          * JSON object
          * @description JSON object response format. An older method of generating JSON responses.
@@ -1155,7 +1912,7 @@ export interface components {
         /**
          * JSON schema
          * @description JSON Schema response format. Used to generate structured JSON responses.
-         *     Learn more about [Structured Outputs](/docs/guides/structured-outputs).
+         *     Learn more about [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs).
          *
          */
         ResponseFormatJsonSchema: {
@@ -1174,16 +1931,7 @@ export interface components {
                  *      */
                 name: string;
                 schema?: components["schemas"]["ResponseFormatJsonSchemaSchema"];
-                /**
-                 * @description Whether to enable strict schema adherence when generating the output.
-                 *     If set to true, the model will always follow the exact schema defined
-                 *     in the `schema` field. Only a subset of JSON Schema is supported when
-                 *     `strict` is `true`. To learn more, read the [Structured Outputs
-                 *     guide](/docs/guides/structured-outputs).
-                 *
-                 * @default false
-                 */
-                strict: boolean | null;
+                strict?: boolean | null;
             } & {
                 [key: string]: unknown;
             };
@@ -1218,44 +1966,569 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        /** @description Output types that you would like the model to generate.
-         *     Most models are capable of generating text, which is the default:
-         *
-         *     `["text"]`
-         *
-         *     The `gpt-4o-audio-preview` model can also be used to
-         *     [generate audio](/docs/guides/audio). To request that this model generate
-         *     both text and audio responses, you can use:
-         *
-         *     `["text", "audio"]`
-         *      */
         ResponseModalities: ("text" | "audio")[] | null;
-        /**
-         * @description Specifies the latency tier to use for processing the request. This parameter is relevant for customers subscribed to the scale tier service:
-         *       - If set to 'auto', and the Project is Scale tier enabled, the system
-         *         will utilize scale tier credits until they are exhausted.
-         *       - If set to 'auto', and the Project is not Scale tier enabled, the request will be processed using the default service tier with a lower uptime SLA and no latency guarantee.
-         *       - If set to 'default', the request will be processed using the default service tier with a lower uptime SLA and no latency guarantee.
-         *       - If set to 'flex', the request will be processed with the Flex Processing service tier. [Learn more](/docs/guides/flex-processing).
-         *       - When not set, the default behavior is 'auto'.
-         *
-         *       When this parameter is set, the response body will include the `service_tier` utilized.
-         *
-         * @default auto
-         * @enum {string|null}
-         */
-        ServiceTier: "auto" | "default" | "flex" | "scale";
-        /**
-         * @description Not supported with latest reasoning models `o3` and `o4-mini`.
+        ServiceTier: ("auto" | "default" | "flex" | "scale" | "priority") | null;
+        /** @description Not supported with latest reasoning models `o3` and `o4-mini`.
          *
          *     Up to 4 sequences where the API will stop generating further tokens. The
          *     returned text will not contain the stop sequence.
-         *
-         * @default null
-         */
+         *      */
         StopConfiguration: (string | string[]) | null;
+        Verbosity: ("low" | "medium" | "high") | null;
         /** @example ash */
-        VoiceIdsShared: string | ("alloy" | "ash" | "ballad" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer" | "verse");
+        VoiceIdsShared: string | ("alloy" | "ash" | "ballad" | "coral" | "echo" | "sage" | "shimmer" | "verse" | "marin" | "cedar");
+        /**
+         * batch.cancelled
+         * @description Sent when a batch API request has been cancelled.
+         *
+         */
+        WebhookBatchCancelled: {
+            /** @description The Unix timestamp (in seconds) of when the batch API request was cancelled.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the batch API request.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `batch.cancelled`.
+             *
+             * @enum {string}
+             */
+            type: "batch.cancelled";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * batch.completed
+         * @description Sent when a batch API request has been completed.
+         *
+         */
+        WebhookBatchCompleted: {
+            /** @description The Unix timestamp (in seconds) of when the batch API request was completed.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the batch API request.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `batch.completed`.
+             *
+             * @enum {string}
+             */
+            type: "batch.completed";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * batch.expired
+         * @description Sent when a batch API request has expired.
+         *
+         */
+        WebhookBatchExpired: {
+            /** @description The Unix timestamp (in seconds) of when the batch API request expired.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the batch API request.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `batch.expired`.
+             *
+             * @enum {string}
+             */
+            type: "batch.expired";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * batch.failed
+         * @description Sent when a batch API request has failed.
+         *
+         */
+        WebhookBatchFailed: {
+            /** @description The Unix timestamp (in seconds) of when the batch API request failed.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the batch API request.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `batch.failed`.
+             *
+             * @enum {string}
+             */
+            type: "batch.failed";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * eval.run.canceled
+         * @description Sent when an eval run has been canceled.
+         *
+         */
+        WebhookEvalRunCanceled: {
+            /** @description The Unix timestamp (in seconds) of when the eval run was canceled.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the eval run.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `eval.run.canceled`.
+             *
+             * @enum {string}
+             */
+            type: "eval.run.canceled";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * eval.run.failed
+         * @description Sent when an eval run has failed.
+         *
+         */
+        WebhookEvalRunFailed: {
+            /** @description The Unix timestamp (in seconds) of when the eval run failed.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the eval run.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `eval.run.failed`.
+             *
+             * @enum {string}
+             */
+            type: "eval.run.failed";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * eval.run.succeeded
+         * @description Sent when an eval run has succeeded.
+         *
+         */
+        WebhookEvalRunSucceeded: {
+            /** @description The Unix timestamp (in seconds) of when the eval run succeeded.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the eval run.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `eval.run.succeeded`.
+             *
+             * @enum {string}
+             */
+            type: "eval.run.succeeded";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * fine_tuning.job.cancelled
+         * @description Sent when a fine-tuning job has been cancelled.
+         *
+         */
+        WebhookFineTuningJobCancelled: {
+            /** @description The Unix timestamp (in seconds) of when the fine-tuning job was cancelled.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the fine-tuning job.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `fine_tuning.job.cancelled`.
+             *
+             * @enum {string}
+             */
+            type: "fine_tuning.job.cancelled";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * fine_tuning.job.failed
+         * @description Sent when a fine-tuning job has failed.
+         *
+         */
+        WebhookFineTuningJobFailed: {
+            /** @description The Unix timestamp (in seconds) of when the fine-tuning job failed.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the fine-tuning job.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `fine_tuning.job.failed`.
+             *
+             * @enum {string}
+             */
+            type: "fine_tuning.job.failed";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * fine_tuning.job.succeeded
+         * @description Sent when a fine-tuning job has succeeded.
+         *
+         */
+        WebhookFineTuningJobSucceeded: {
+            /** @description The Unix timestamp (in seconds) of when the fine-tuning job succeeded.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the fine-tuning job.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `fine_tuning.job.succeeded`.
+             *
+             * @enum {string}
+             */
+            type: "fine_tuning.job.succeeded";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * realtime.call.incoming
+         * @description Sent when Realtime API Receives a incoming SIP call.
+         *
+         */
+        WebhookRealtimeCallIncoming: {
+            /** @description The Unix timestamp (in seconds) of when the model response was completed.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of this call.
+                 *      */
+                call_id: string;
+                /** @description Headers from the SIP Invite.
+                 *      */
+                sip_headers: ({
+                    /** @description Name of the SIP Header.
+                     *      */
+                    name: string;
+                    /** @description Value of the SIP Header.
+                     *      */
+                    value: string;
+                } & {
+                    [key: string]: unknown;
+                })[];
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `realtime.call.incoming`.
+             *
+             * @enum {string}
+             */
+            type: "realtime.call.incoming";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * response.cancelled
+         * @description Sent when a background response has been cancelled.
+         *
+         */
+        WebhookResponseCancelled: {
+            /** @description The Unix timestamp (in seconds) of when the model response was cancelled.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the model response.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `response.cancelled`.
+             *
+             * @enum {string}
+             */
+            type: "response.cancelled";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * response.completed
+         * @description Sent when a background response has been completed.
+         *
+         */
+        WebhookResponseCompleted: {
+            /** @description The Unix timestamp (in seconds) of when the model response was completed.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the model response.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `response.completed`.
+             *
+             * @enum {string}
+             */
+            type: "response.completed";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * response.failed
+         * @description Sent when a background response has failed.
+         *
+         */
+        WebhookResponseFailed: {
+            /** @description The Unix timestamp (in seconds) of when the model response failed.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the model response.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `response.failed`.
+             *
+             * @enum {string}
+             */
+            type: "response.failed";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * response.incomplete
+         * @description Sent when a background response has been interrupted.
+         *
+         */
+        WebhookResponseIncomplete: {
+            /** @description The Unix timestamp (in seconds) of when the model response was interrupted.
+             *      */
+            created_at: number;
+            /** @description Event data payload.
+             *      */
+            data: {
+                /** @description The unique ID of the model response.
+                 *      */
+                id: string;
+            } & {
+                [key: string]: unknown;
+            };
+            /** @description The unique ID of the event.
+             *      */
+            id: string;
+            /**
+             * @description The object of the event. Always `event`.
+             *
+             * @enum {string}
+             */
+            object?: "event";
+            /**
+             * @description The type of the event. Always `response.incomplete`.
+             *
+             * @enum {string}
+             */
+            type: "response.incomplete";
+        } & {
+            [key: string]: unknown;
+        };
         /**
          * @description High level guidance for the amount of context window space to use for the
          *     search. One of `low`, `medium`, or `high`. `medium` is the default.

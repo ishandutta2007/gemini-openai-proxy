@@ -99,7 +99,7 @@ export async function OaiProxyHandler(req: TTSParam): Promise<Response> {
         voice = VOICE_LIST[0]
       }
       const formData = new URLSearchParams({
-        input: chunks.shift(),
+        input: chunks.at(0) ?? "",
         voice: voice,
         generation: generation,
         response_format: req.response_format ?? DEFAULT_AUDIO_FORMAT,

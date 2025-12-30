@@ -1,4 +1,4 @@
-// ../../../.cache/deno/npm/registry.npmjs.org/itty-router/5.0.18/cors.mjs
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/itty-router/5.0.22/cors.mjs
 var e = (e2 = {}) => {
   const { origin: o = "*", credentials: s = false, allowMethods: c = "*", allowHeaders: r2, exposeHeaders: n, maxAge: t } = e2, a = (e3) => {
     const c2 = e3?.headers.get("origin");
@@ -30,7 +30,7 @@ var e = (e2 = {}) => {
   };
 };
 
-// ../../../.cache/deno/npm/registry.npmjs.org/itty-router/5.0.18/Router.mjs
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/itty-router/5.0.22/Router.mjs
 var r = ({ base: r2 = "", routes: e2 = [], ...a } = {}) => ({
   __proto__: new Proxy({}, {
     get: (a2, t, o, c) => (a3, ...l) => e2.push([
@@ -257,9 +257,9 @@ var ModelMapping = {
   "gpt-5-mini": "gemini-2.5-flash",
   "gpt-5": "gemini-2.5-pro",
   // Embeddings remain good
-  "text-embedding-3-small": "text-embedding-004",
-  "text-embedding-3-large": "text-embedding-004",
-  "text-embedding-ada-002": "text-embedding-004",
+  "text-embedding-3-small": "gemini-embedding-001",
+  "text-embedding-3-large": "gemini-embedding-001",
+  "text-embedding-ada-002": "gemini-embedding-001",
   // TTS mapping
   "tts-1": "fmtts"
 };
@@ -298,7 +298,7 @@ function hello(req) {
     -H "Authorization: Bearer $YOUR_GEMINI_API_KEY" \\
     -H "Content-Type: application/json" \\
     -d '{
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4",
         "messages": [{"role": "user", "content": "Hello"}],
         "temperature": 0.7
     }'
@@ -350,7 +350,7 @@ async function hmacSha256(key, data) {
   const signature = await crypto.subtle.sign("HMAC", cryptoKey, new TextEncoder().encode(data));
   return new Uint8Array(signature);
 }
-async function base64ToBytes(base64) {
+function base64ToBytes(base64) {
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
@@ -358,7 +358,7 @@ async function base64ToBytes(base64) {
   }
   return bytes;
 }
-async function bytesToBase64(bytes) {
+function bytesToBase64(bytes) {
   return btoa(String.fromCharCode.apply(null, Array.from(bytes)));
 }
 function uuid() {
@@ -370,9 +370,9 @@ async function sign(urlStr) {
   const uuidStr = uuid();
   const formattedDate = dateFormat();
   const bytesToSign = `MSTranslatorAndroidApp${encodedUrl}${formattedDate}${uuidStr}`.toLowerCase();
-  const decode = await base64ToBytes("oik6PdDdMnOXemTbwvMn9de/h9lFnfBaCWbGMMZqqoSaQaqUOqjVGm5NqsmjcBI1x+sS9ugjB55HEJWRiFXYFw==");
+  const decode = base64ToBytes("oik6PdDdMnOXemTbwvMn9de/h9lFnfBaCWbGMMZqqoSaQaqUOqjVGm5NqsmjcBI1x+sS9ugjB55HEJWRiFXYFw==");
   const signData = await hmacSha256(decode, bytesToSign);
-  const signBase64 = await bytesToBase64(signData);
+  const signBase64 = bytesToBase64(signData);
   return `MSTranslatorAndroidApp::${signBase64}::${formattedDate}::${uuidStr}`;
 }
 function dateFormat() {
@@ -612,133 +612,66 @@ async function EdgeProxyHandler(req) {
   return response;
 }
 
-// src/openai/audio/speech/OaiProxyHandler.ts
-var OAI_TTS_ENDPOINT_URL = "https://www.openai.fm/api/generate";
-var DEFAULT_AUDIO_FORMAT2 = "mp3";
-var VOICE_LIST2 = [
-  "alloy",
-  "ash",
-  "ballad",
-  "coral",
-  "echo",
-  "fable",
-  "nova",
-  "onyx",
-  "sage",
-  "shimmer"
-];
-var DEFAULT_PROMPT = `Voice Affect: Calm, composed, and reassuring; project quiet authority and confidence, BBC reporter host accent.
-Tone: Sincere, empathetic, and gently authoritative\u2014express genuine apology while conveying competence.
-Pacing: Steady and moderate; unhurried enough to communicate care, yet efficient enough to demonstrate professionalism.
-Emotion: Genuine empathy and understanding; speak with warmth, especially during apologies ("I'm very sorry for any disruption...").
-Pronunciation: Clear and precise, emphasizing key reassurances ("smoothly," "quickly," "promptly") to reinforce confidence.
-Pauses: Brief pauses after offering assistance or requesting details, highlighting willingness to listen and support.`;
-async function OaiProxyDownloader(formData) {
-  try {
-    const response = await fetch(OAI_TTS_ENDPOINT_URL, {
-      method: "POST",
-      headers: {
-        // "X-ClientVersion": "4.0.530a 5fe1dc6c",
-        // "X-UserId": "0f04d16a175c411e",
-        // "X-ClientTraceId": ClientId,
-        // "X-MT-Signature": Signature,
-        // "X-HomeGeographicRegion": "en-US",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0",
-        // KEY CHANGE: Use form content type instead of JSON
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "audio/*",
-        "Accept-Encoding": "gzip, deflate, br"
-      },
-      // KEY CHANGE: Send form data as string, not JSON
-      body: formData.toString()
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("TTS API Error:", {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      console.error("TTS formData:", formData);
-      return new Response(JSON.stringify({
-        error: `TTS API error: ${response.status} ${response.statusText}`,
-        details: errorText
-      }), {
-        status: response.status,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-    }
-    return new Response(response.body, {
-      status: 200,
-      headers: {
-        "Content-Type": response.headers.get("Content-Type") || "audio/mpeg",
-        "Content-Length": response.headers.get("Content-Length") || ""
+// src/adapter.ts
+var env = (c, runtime) => {
+  const global = globalThis;
+  const globalEnv = global?.process?.env;
+  runtime ??= getRuntimeKey2();
+  const runtimeEnvHandlers = {
+    bun: () => globalEnv,
+    node: () => globalEnv,
+    "edge-light": () => globalEnv,
+    deno: () => {
+      return Deno.env.toObject();
+    },
+    // @ts-ignore -- change to work with itty-router
+    workerd: () => c,
+    // On Fastly Compute, you can use the ConfigStore to manage user-defined data.
+    fastly: () => ({}),
+    other: () => ({})
+  };
+  console.log("Runtime detected in env():", runtime);
+  return runtimeEnvHandlers[runtime]();
+};
+var knownUserAgents = {
+  deno: "Deno",
+  bun: "Bun",
+  workerd: "Cloudflare-Workers",
+  node: "Node.js"
+};
+var getRuntimeKey2 = () => {
+  const global = globalThis;
+  const userAgentSupported = typeof navigator !== "undefined" && typeof navigator.userAgent === "string";
+  if (userAgentSupported) {
+    for (const [runtimeKey, userAgent] of Object.entries(knownUserAgents)) {
+      if (checkUserAgentEquals(userAgent)) {
+        return runtimeKey;
       }
-    });
-  } catch (error) {
-    console.error("TTS Handler Error:", error);
-    return new Response(JSON.stringify({
-      error: "Internal server error",
-      message: error instanceof Error ? error.message : "Unknown error"
-    }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-  }
-}
-async function OaiProxyHandler(req) {
-  const maxChunkSize = 4096;
-  const chunks = splitAndMerge(req.input.trim(), maxChunkSize, "\n");
-  const audioChunks = [];
-  while (chunks.length > 0) {
-    try {
-      const generation = crypto.randomUUID().toString();
-      let voice = req.voice;
-      if (!VOICE_LIST2.includes(voice)) {
-        voice = VOICE_LIST2[0];
-      }
-      const formData = new URLSearchParams({
-        input: chunks.shift(),
-        voice,
-        generation,
-        response_format: req.response_format ?? DEFAULT_AUDIO_FORMAT2,
-        prompt: req.instructions ?? DEFAULT_PROMPT
-      });
-      const audio_chunk = await (await OaiProxyDownloader(formData)).blob();
-      audioChunks.push(audio_chunk);
-    } catch (error) {
-      console.error("TTS Handler Error:", error);
-      return new Response(JSON.stringify({
-        error: "Internal server error",
-        message: error instanceof Error ? error.message : "Unknown error"
-      }), {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
     }
   }
-  const concatenatedAudio = new Blob(audioChunks, {
-    type: "audio/mpeg"
-  });
-  const response = new Response(concatenatedAudio, {
-    headers: {
-      "Content-Type": "audio/mpeg",
-      ...makeCORSHeaders()
-    }
-  });
-  return response;
-}
+  if (typeof global?.EdgeRuntime === "string") {
+    return "edge-light";
+  }
+  if (global?.fastly !== void 0) {
+    return "fastly";
+  }
+  if (global?.process?.release?.name === "node") {
+    return "node";
+  }
+  return "other";
+};
+var checkUserAgentEquals = (platform) => {
+  const userAgent = navigator.userAgent;
+  return userAgent.startsWith(platform);
+};
 
 // src/openai/audio/speech/TTSProxyHandler.ts
-async function ttsProxyHandler(rawReq) {
-  const req = await rawReq.json();
+async function ttsProxyHandler(rawReq, ctx) {
+  const { TTS_ENDPOINT, TTS_API_KEY } = env(ctx);
+  var ENV_TTS_ENDPOINT = TTS_ENDPOINT;
+  var ENV_TTS_API_KEY = TTS_API_KEY;
+  const json = await rawReq.json();
+  const req = json;
   const headers = rawReq.headers;
   const apiParam = getToken(headers);
   if (apiParam == null) {
@@ -747,12 +680,39 @@ async function ttsProxyHandler(rawReq) {
     });
   }
   if (req.model === "tts-1") {
-    return OaiProxyHandler(req);
+    if (!ENV_TTS_ENDPOINT || !ENV_TTS_API_KEY) {
+      return new Response("Internal Server Error: Missing TTS_ENDPOINT or TTS_API_KEY", {
+        status: 500
+      });
+    }
+    const newHeaders = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${ENV_TTS_API_KEY}`
+    });
+    const remote_url = `${ENV_TTS_ENDPOINT}/v1/audio/speech`;
+    const new_req = new Request(remote_url, {
+      method: "POST",
+      headers: newHeaders,
+      body: JSON.stringify(json)
+    });
+    const res = await fetch(remote_url, {
+      method: "POST",
+      headers: newHeaders,
+      body: JSON.stringify(json),
+      // @ts-ignore - Node.js specific, ignored by other runtimes
+      duplex: "half"
+    });
+    if (res.status !== 200) {
+      return new Response("Internal Server Error", {
+        status: 500
+      });
+    }
+    return res;
   }
   return EdgeProxyHandler(req);
 }
 
-// ../../../.cache/deno/npm/registry.npmjs.org/eventsource-parser/3.0.1/dist/index.js
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/index.js
 var ParseError = class extends Error {
   constructor(message, options) {
     super(message), this.name = "ParseError", this.type = options.type, this.field = options.field, this.value = options.value, this.line = options.line;
@@ -840,7 +800,7 @@ function splitLines(chunk) {
     const crIndex = chunk.indexOf("\r", searchIndex), lfIndex = chunk.indexOf(`
 `, searchIndex);
     let lineEnd = -1;
-    if (crIndex !== -1 && lfIndex !== -1 ? lineEnd = Math.min(crIndex, lfIndex) : crIndex !== -1 ? lineEnd = crIndex : lfIndex !== -1 && (lineEnd = lfIndex), lineEnd === -1) {
+    if (crIndex !== -1 && lfIndex !== -1 ? lineEnd = Math.min(crIndex, lfIndex) : crIndex !== -1 ? crIndex === chunk.length - 1 ? lineEnd = -1 : lineEnd = crIndex : lfIndex !== -1 && (lineEnd = lfIndex), lineEnd === -1) {
       incompleteLine = chunk.slice(searchIndex);
       break;
     } else {
@@ -855,7 +815,7 @@ function splitLines(chunk) {
   ];
 }
 
-// ../../../.cache/deno/npm/registry.npmjs.org/eventsource-parser/3.0.1/dist/stream.js
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/stream.js
 var EventSourceParserStream = class extends TransformStream {
   constructor({ onError, onRetry, onComment } = {}) {
     let parser;
@@ -1224,7 +1184,7 @@ async function chatProxyHandler(rawReq) {
 }
 
 // src/openai/embeddingProxyHandler.ts
-var GEMINI_EMBEDDING_MODEL = "text-embedding-004";
+var GEMINI_EMBEDDING_MODEL = "gemini-embedding-001";
 var BATCH_SIZE = 100;
 async function embeddingProxyHandler(rawReq) {
   const req = await rawReq.json();
@@ -1328,9 +1288,23 @@ var modelDetail = (model) => {
 };
 
 // src/app.ts
-var { preflight, corsify } = e({
+var { preflight } = e({
   allowHeaders: "*"
 });
+var corsify = (response, request) => {
+  if (response?.headers?.get("access-control-allow-origin") || response.status === 101) {
+    return response;
+  }
+  const origin = request?.headers?.get("origin") || "*";
+  const newHeaders = new Headers(response.headers);
+  newHeaders.append("access-control-allow-origin", origin);
+  newHeaders.append("access-control-allow-methods", "*");
+  newHeaders.append("access-control-allow-headers", "*");
+  return new Response(response.body, {
+    status: response.status,
+    headers: newHeaders
+  });
+};
 var app = r({
   before: [
     preflight,

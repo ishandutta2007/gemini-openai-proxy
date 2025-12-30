@@ -3,7 +3,7 @@
  * Adapter Helper for Hono.
  */
 
-import type { Context } from './context'
+import type { Context } from "./context.ts"
 
 export type Runtime = 'node' | 'deno' | 'bun' | 'workerd' | 'fastly' | 'edge-light' | 'other'
 

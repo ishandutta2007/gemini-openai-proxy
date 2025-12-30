@@ -1,12 +1,13 @@
-// ../../../.cache/deno/npm/registry.npmjs.org/@hono/node-server/1.14.1/dist/index.mjs
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/@hono/node-server/1.19.5/dist/index.mjs
 import { createServer as createServerHTTP } from "node:http";
+import { Http2ServerRequest as Http2ServerRequest2 } from "node:http2";
 import { Http2ServerRequest } from "node:http2";
 import { Readable } from "node:stream";
 import crypto2 from "node:crypto";
 var RequestError = class extends Error {
-  static name = "RequestError";
   constructor(message, options) {
     super(message, options);
+    this.name = "RequestError";
   }
 };
 var toRequestError = (e2) => {
@@ -30,7 +31,7 @@ var Request2 = class extends GlobalRequest {
     super(input, options);
   }
 };
-var newRequestFromIncoming = (method, url, incoming, abortController) => {
+var newHeadersFromIncoming = (incoming) => {
   const headerRecord = [];
   const rawHeaders = incoming.rawHeaders;
   for (let i = 0; i < rawHeaders.length; i += 2) {
@@ -43,9 +44,13 @@ var newRequestFromIncoming = (method, url, incoming, abortController) => {
       ]);
     }
   }
+  return new Headers(headerRecord);
+};
+var wrapBodyStream = Symbol("wrapBodyStream");
+var newRequestFromIncoming = (method, url, headers, incoming, abortController) => {
   const init = {
     method,
-    headers: headerRecord,
+    headers,
     signal: abortController.signal
   };
   if (method === "TRACE") {
@@ -66,6 +71,23 @@ var newRequestFromIncoming = (method, url, incoming, abortController) => {
           controller.close();
         }
       });
+    } else if (incoming[wrapBodyStream]) {
+      let reader;
+      init.body = new ReadableStream({
+        async pull(controller) {
+          try {
+            reader ||= Readable.toWeb(incoming).getReader();
+            const { done, value } = await reader.read();
+            if (done) {
+              controller.close();
+            } else {
+              controller.enqueue(value);
+            }
+          } catch (error) {
+            controller.error(error);
+          }
+        }
+      });
     } else {
       init.body = Readable.toWeb(incoming);
     }
@@ -76,6 +98,7 @@ var getRequestCache = Symbol("getRequestCache");
 var requestCache = Symbol("requestCache");
 var incomingKey = Symbol("incomingKey");
 var urlKey = Symbol("urlKey");
+var headersKey = Symbol("headersKey");
 var abortControllerKey = Symbol("abortControllerKey");
 var getAbortController = Symbol("getAbortController");
 var requestPrototype = {
@@ -85,13 +108,16 @@ var requestPrototype = {
   get url() {
     return this[urlKey];
   },
+  get headers() {
+    return this[headersKey] ||= newHeadersFromIncoming(this[incomingKey]);
+  },
   [getAbortController]() {
     this[getRequestCache]();
     return this[abortControllerKey];
   },
   [getRequestCache]() {
     this[abortControllerKey] ||= new AbortController();
-    return this[requestCache] ||= newRequestFromIncoming(this.method, this[urlKey], this[incomingKey], this[abortControllerKey]);
+    return this[requestCache] ||= newRequestFromIncoming(this.method, this[urlKey], this.headers, this[incomingKey], this[abortControllerKey]);
   }
 };
 [
@@ -100,7 +126,6 @@ var requestPrototype = {
   "cache",
   "credentials",
   "destination",
-  "headers",
   "integrity",
   "mode",
   "redirect",
@@ -169,64 +194,6 @@ var newRequest = (incoming, defaultHostname) => {
   req[urlKey] = url.href;
   return req;
 };
-function writeFromReadableStream(stream, writable) {
-  if (stream.locked) {
-    throw new TypeError("ReadableStream is locked.");
-  } else if (writable.destroyed) {
-    stream.cancel();
-    return;
-  }
-  const reader = stream.getReader();
-  writable.on("close", cancel);
-  writable.on("error", cancel);
-  reader.read().then(flow, cancel);
-  return reader.closed.finally(() => {
-    writable.off("close", cancel);
-    writable.off("error", cancel);
-  });
-  function cancel(error) {
-    reader.cancel(error).catch(() => {
-    });
-    if (error) {
-      writable.destroy(error);
-    }
-  }
-  function onDrain() {
-    reader.read().then(flow, cancel);
-  }
-  function flow({ done, value }) {
-    try {
-      if (done) {
-        writable.end();
-      } else if (!writable.write(value)) {
-        writable.once("drain", onDrain);
-      } else {
-        return reader.read().then(flow, cancel);
-      }
-    } catch (e2) {
-      cancel(e2);
-    }
-  }
-}
-var buildOutgoingHttpHeaders = (headers) => {
-  const res = {};
-  if (!(headers instanceof Headers)) {
-    headers = new Headers(headers ?? void 0);
-  }
-  const cookies = [];
-  for (const [k, v] of headers) {
-    if (k === "set-cookie") {
-      cookies.push(v);
-    } else {
-      res[k] = v;
-    }
-  }
-  if (cookies.length > 0) {
-    res["set-cookie"] = cookies;
-  }
-  res["content-type"] ??= "text/plain; charset=UTF-8";
-  return res;
-};
 var responseCache = Symbol("responseCache");
 var getResponseCache = Symbol("getResponseCache");
 var cacheKey = Symbol("cache");
@@ -239,6 +206,7 @@ var Response2 = class _Response {
     return this[responseCache] ||= new GlobalResponse(this.#body, this.#init);
   }
   constructor(body, init) {
+    let headers;
     this.#body = body;
     if (init instanceof _Response) {
       const cachedGlobalResponse = init[responseCache];
@@ -248,18 +216,15 @@ var Response2 = class _Response {
         return;
       } else {
         this.#init = init.#init;
+        headers = new Headers(init.#init.headers);
       }
     } else {
       this.#init = init;
     }
-    if (typeof body === "string" || typeof body?.getReader !== "undefined") {
-      let headers = init?.headers || {
+    if (typeof body === "string" || typeof body?.getReader !== "undefined" || body instanceof Blob || body instanceof Uint8Array) {
+      headers ||= init?.headers || {
         "content-type": "text/plain; charset=UTF-8"
       };
-      if (headers instanceof Headers) {
-        headers = buildOutgoingHttpHeaders(headers);
-      }
-      ;
       this[cacheKey] = [
         init?.status || 200,
         body,
@@ -267,14 +232,28 @@ var Response2 = class _Response {
       ];
     }
   }
+  get headers() {
+    const cache = this[cacheKey];
+    if (cache) {
+      if (!(cache[2] instanceof Headers)) {
+        cache[2] = new Headers(cache[2]);
+      }
+      return cache[2];
+    }
+    return this[getResponseCache]().headers;
+  }
+  get status() {
+    return this[cacheKey]?.[0] ?? this[getResponseCache]().status;
+  }
+  get ok() {
+    const status = this.status;
+    return status >= 200 && status < 300;
+  }
 };
 [
   "body",
   "bodyUsed",
-  "headers",
-  "ok",
   "redirected",
-  "status",
   "statusText",
   "trailers",
   "type",
@@ -302,20 +281,73 @@ var Response2 = class _Response {
 });
 Object.setPrototypeOf(Response2, GlobalResponse);
 Object.setPrototypeOf(Response2.prototype, GlobalResponse.prototype);
-var stateKey = Reflect.ownKeys(new GlobalResponse()).find((k) => typeof k === "symbol" && k.toString() === "Symbol(state)");
-if (!stateKey) {
-  console.warn("Failed to find Response internal state key");
+async function readWithoutBlocking(readPromise) {
+  return Promise.race([
+    readPromise,
+    Promise.resolve().then(() => Promise.resolve(void 0))
+  ]);
 }
-function getInternalBody(response) {
-  if (!stateKey) {
+function writeFromReadableStreamDefaultReader(reader, writable, currentReadPromise) {
+  const cancel = (error) => {
+    reader.cancel(error).catch(() => {
+    });
+  };
+  writable.on("close", cancel);
+  writable.on("error", cancel);
+  (currentReadPromise ?? reader.read()).then(flow, handleStreamError);
+  return reader.closed.finally(() => {
+    writable.off("close", cancel);
+    writable.off("error", cancel);
+  });
+  function handleStreamError(error) {
+    if (error) {
+      writable.destroy(error);
+    }
+  }
+  function onDrain() {
+    reader.read().then(flow, handleStreamError);
+  }
+  function flow({ done, value }) {
+    try {
+      if (done) {
+        writable.end();
+      } else if (!writable.write(value)) {
+        writable.once("drain", onDrain);
+      } else {
+        return reader.read().then(flow, handleStreamError);
+      }
+    } catch (e2) {
+      handleStreamError(e2);
+    }
+  }
+}
+function writeFromReadableStream(stream, writable) {
+  if (stream.locked) {
+    throw new TypeError("ReadableStream is locked.");
+  } else if (writable.destroyed) {
     return;
   }
-  if (response instanceof Response2) {
-    response = response[getResponseCache]();
-  }
-  const state = response[stateKey];
-  return state && state.body || void 0;
+  return writeFromReadableStreamDefaultReader(stream.getReader(), writable);
 }
+var buildOutgoingHttpHeaders = (headers) => {
+  const res = {};
+  if (!(headers instanceof Headers)) {
+    headers = new Headers(headers ?? void 0);
+  }
+  const cookies = [];
+  for (const [k, v] of headers) {
+    if (k === "set-cookie") {
+      cookies.push(v);
+    } else {
+      res[k] = v;
+    }
+  }
+  if (cookies.length > 0) {
+    res["set-cookie"] = cookies;
+  }
+  res["content-type"] ??= "text/plain; charset=UTF-8";
+  return res;
+};
 var X_ALREADY_SENT = "x-hono-already-sent";
 var webFetch = global.fetch;
 if (typeof global.crypto === "undefined") {
@@ -330,8 +362,7 @@ global.fetch = (info, init) => {
   };
   return webFetch(info, init);
 };
-var regBuffer = /^no$/i;
-var regContentType = /^(application\/json\b|text\/(?!event-stream\b))/i;
+var outgoingEnded = Symbol("outgoingEnded");
 var handleRequestError = () => new Response(null, {
   status: 400
 });
@@ -355,19 +386,38 @@ var handleResponseError = (e2, outgoing) => {
     outgoing.destroy(err);
   }
 };
-var responseViaCache = (res, outgoing) => {
-  const [status, body, header] = res[cacheKey];
-  if (typeof body === "string") {
-    header["Content-Length"] = Buffer.byteLength(body);
-    outgoing.writeHead(status, header);
-    outgoing.end(body);
-  } else {
-    outgoing.writeHead(status, header);
-    return writeFromReadableStream(body, outgoing)?.catch((e2) => handleResponseError(e2, outgoing));
+var flushHeaders = (outgoing) => {
+  if ("flushHeaders" in outgoing && outgoing.writable) {
+    outgoing.flushHeaders();
   }
 };
+var responseViaCache = async (res, outgoing) => {
+  let [status, body, header] = res[cacheKey];
+  if (header instanceof Headers) {
+    header = buildOutgoingHttpHeaders(header);
+  }
+  if (typeof body === "string") {
+    header["Content-Length"] = Buffer.byteLength(body);
+  } else if (body instanceof Uint8Array) {
+    header["Content-Length"] = body.byteLength;
+  } else if (body instanceof Blob) {
+    header["Content-Length"] = body.size;
+  }
+  outgoing.writeHead(status, header);
+  if (typeof body === "string" || body instanceof Uint8Array) {
+    outgoing.end(body);
+  } else if (body instanceof Blob) {
+    outgoing.end(new Uint8Array(await body.arrayBuffer()));
+  } else {
+    flushHeaders(outgoing);
+    await writeFromReadableStream(body, outgoing)?.catch((e2) => handleResponseError(e2, outgoing));
+  }
+  ;
+  outgoing[outgoingEnded]?.();
+};
+var isPromise = (res) => typeof res.then === "function";
 var responseViaResponseObject = async (res, outgoing, options = {}) => {
-  if (res instanceof Promise) {
+  if (isPromise(res)) {
     if (options.errorHandler) {
       try {
         res = await res;
@@ -386,44 +436,63 @@ var responseViaResponseObject = async (res, outgoing, options = {}) => {
     return responseViaCache(res, outgoing);
   }
   const resHeaderRecord = buildOutgoingHttpHeaders(res.headers);
-  const internalBody = getInternalBody(res);
-  if (internalBody) {
-    const { length, source, stream } = internalBody;
-    if (source instanceof Uint8Array && source.byteLength !== length) {
-    } else {
-      if (length) {
-        resHeaderRecord["content-length"] = length;
-      }
-      outgoing.writeHead(res.status, resHeaderRecord);
-      if (typeof source === "string" || source instanceof Uint8Array) {
-        outgoing.end(source);
-      } else if (source instanceof Blob) {
-        outgoing.end(new Uint8Array(await source.arrayBuffer()));
-      } else {
-        await writeFromReadableStream(stream, outgoing);
-      }
-      return;
-    }
-  }
   if (res.body) {
-    const { "transfer-encoding": transferEncoding, "content-encoding": contentEncoding, "content-length": contentLength, "x-accel-buffering": accelBuffering, "content-type": contentType } = resHeaderRecord;
-    if (transferEncoding || contentEncoding || contentLength || // nginx buffering variant
-    accelBuffering && regBuffer.test(accelBuffering) || !regContentType.test(contentType)) {
-      outgoing.writeHead(res.status, resHeaderRecord);
-      await writeFromReadableStream(res.body, outgoing);
+    const reader = res.body.getReader();
+    const values = [];
+    let done = false;
+    let currentReadPromise = void 0;
+    if (resHeaderRecord["transfer-encoding"] !== "chunked") {
+      let maxReadCount = 2;
+      for (let i = 0; i < maxReadCount; i++) {
+        currentReadPromise ||= reader.read();
+        const chunk = await readWithoutBlocking(currentReadPromise).catch((e2) => {
+          console.error(e2);
+          done = true;
+        });
+        if (!chunk) {
+          if (i === 1) {
+            await new Promise((resolve) => setTimeout(resolve));
+            maxReadCount = 3;
+            continue;
+          }
+          break;
+        }
+        currentReadPromise = void 0;
+        if (chunk.value) {
+          values.push(chunk.value);
+        }
+        if (chunk.done) {
+          done = true;
+          break;
+        }
+      }
+      if (done && !("content-length" in resHeaderRecord)) {
+        resHeaderRecord["content-length"] = values.reduce((acc, value) => acc + value.length, 0);
+      }
+    }
+    outgoing.writeHead(res.status, resHeaderRecord);
+    values.forEach((value) => {
+      ;
+      outgoing.write(value);
+    });
+    if (done) {
+      outgoing.end();
     } else {
-      const buffer = await res.arrayBuffer();
-      resHeaderRecord["content-length"] = buffer.byteLength;
-      outgoing.writeHead(res.status, resHeaderRecord);
-      outgoing.end(new Uint8Array(buffer));
+      if (values.length === 0) {
+        flushHeaders(outgoing);
+      }
+      await writeFromReadableStreamDefaultReader(reader, outgoing, currentReadPromise);
     }
   } else if (resHeaderRecord[X_ALREADY_SENT]) {
   } else {
     outgoing.writeHead(res.status, resHeaderRecord);
     outgoing.end();
   }
+  ;
+  outgoing[outgoingEnded]?.();
 };
 var getRequestListener = (fetchCallback, options = {}) => {
+  const autoCleanupIncoming = options.autoCleanupIncoming ?? true;
   if (options.overrideGlobalObjects !== false && global.Request !== Request2) {
     Object.defineProperty(global, "Request", {
       value: Request2
@@ -436,15 +505,46 @@ var getRequestListener = (fetchCallback, options = {}) => {
     let res, req;
     try {
       req = newRequest(incoming, options.hostname);
+      let incomingEnded = !autoCleanupIncoming || incoming.method === "GET" || incoming.method === "HEAD";
+      if (!incomingEnded) {
+        ;
+        incoming[wrapBodyStream] = true;
+        incoming.on("end", () => {
+          incomingEnded = true;
+        });
+        if (incoming instanceof Http2ServerRequest2) {
+          ;
+          outgoing[outgoingEnded] = () => {
+            if (!incomingEnded) {
+              setTimeout(() => {
+                if (!incomingEnded) {
+                  setTimeout(() => {
+                    incoming.destroy();
+                    outgoing.destroy();
+                  });
+                }
+              });
+            }
+          };
+        }
+      }
       outgoing.on("close", () => {
         const abortController = req[abortControllerKey];
-        if (!abortController) {
-          return;
+        if (abortController) {
+          if (incoming.errored) {
+            req[abortControllerKey].abort(incoming.errored.toString());
+          } else if (!outgoing.writableFinished) {
+            req[abortControllerKey].abort("Client connection prematurely closed.");
+          }
         }
-        if (incoming.errored) {
-          req[abortControllerKey].abort(incoming.errored.toString());
-        } else if (!outgoing.writableFinished) {
-          req[abortControllerKey].abort("Client connection prematurely closed.");
+        if (!incomingEnded) {
+          setTimeout(() => {
+            if (!incomingEnded) {
+              setTimeout(() => {
+                incoming.destroy();
+              });
+            }
+          });
         }
       });
       res = fetchCallback(req, {
@@ -481,7 +581,8 @@ var createAdaptorServer = (options) => {
   const fetchCallback = options.fetch;
   const requestListener = getRequestListener(fetchCallback, {
     hostname: options.hostname,
-    overrideGlobalObjects: options.overrideGlobalObjects
+    overrideGlobalObjects: options.overrideGlobalObjects,
+    autoCleanupIncoming: options.autoCleanupIncoming
   });
   const createServer = options.createServer || createServerHTTP;
   const server = createServer(options.serverOptions || {}, requestListener);
@@ -496,7 +597,7 @@ var serve = (options, listeningListener) => {
   return server;
 };
 
-// ../../../.cache/deno/npm/registry.npmjs.org/itty-router/5.0.18/cors.mjs
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/itty-router/5.0.22/cors.mjs
 var e = (e2 = {}) => {
   const { origin: o = "*", credentials: s = false, allowMethods: c = "*", allowHeaders: r2, exposeHeaders: n, maxAge: t } = e2, a = (e3) => {
     const c2 = e3?.headers.get("origin");
@@ -528,7 +629,7 @@ var e = (e2 = {}) => {
   };
 };
 
-// ../../../.cache/deno/npm/registry.npmjs.org/itty-router/5.0.18/Router.mjs
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/itty-router/5.0.22/Router.mjs
 var r = ({ base: r2 = "", routes: e2 = [], ...a } = {}) => ({
   __proto__: new Proxy({}, {
     get: (a2, t, o, c) => (a3, ...l) => e2.push([
@@ -755,9 +856,9 @@ var ModelMapping = {
   "gpt-5-mini": "gemini-2.5-flash",
   "gpt-5": "gemini-2.5-pro",
   // Embeddings remain good
-  "text-embedding-3-small": "text-embedding-004",
-  "text-embedding-3-large": "text-embedding-004",
-  "text-embedding-ada-002": "text-embedding-004",
+  "text-embedding-3-small": "gemini-embedding-001",
+  "text-embedding-3-large": "gemini-embedding-001",
+  "text-embedding-ada-002": "gemini-embedding-001",
   // TTS mapping
   "tts-1": "fmtts"
 };
@@ -796,7 +897,7 @@ function hello(req) {
     -H "Authorization: Bearer $YOUR_GEMINI_API_KEY" \\
     -H "Content-Type: application/json" \\
     -d '{
-        "model": "gpt-3.5-turbo",
+        "model": "gpt-4",
         "messages": [{"role": "user", "content": "Hello"}],
         "temperature": 0.7
     }'
@@ -848,7 +949,7 @@ async function hmacSha256(key, data) {
   const signature = await crypto.subtle.sign("HMAC", cryptoKey, new TextEncoder().encode(data));
   return new Uint8Array(signature);
 }
-async function base64ToBytes(base64) {
+function base64ToBytes(base64) {
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
@@ -856,7 +957,7 @@ async function base64ToBytes(base64) {
   }
   return bytes;
 }
-async function bytesToBase64(bytes) {
+function bytesToBase64(bytes) {
   return btoa(String.fromCharCode.apply(null, Array.from(bytes)));
 }
 function uuid() {
@@ -868,9 +969,9 @@ async function sign(urlStr) {
   const uuidStr = uuid();
   const formattedDate = dateFormat();
   const bytesToSign = `MSTranslatorAndroidApp${encodedUrl}${formattedDate}${uuidStr}`.toLowerCase();
-  const decode = await base64ToBytes("oik6PdDdMnOXemTbwvMn9de/h9lFnfBaCWbGMMZqqoSaQaqUOqjVGm5NqsmjcBI1x+sS9ugjB55HEJWRiFXYFw==");
+  const decode = base64ToBytes("oik6PdDdMnOXemTbwvMn9de/h9lFnfBaCWbGMMZqqoSaQaqUOqjVGm5NqsmjcBI1x+sS9ugjB55HEJWRiFXYFw==");
   const signData = await hmacSha256(decode, bytesToSign);
-  const signBase64 = await bytesToBase64(signData);
+  const signBase64 = bytesToBase64(signData);
   return `MSTranslatorAndroidApp::${signBase64}::${formattedDate}::${uuidStr}`;
 }
 function dateFormat() {
@@ -1110,133 +1211,66 @@ async function EdgeProxyHandler(req) {
   return response;
 }
 
-// src/openai/audio/speech/OaiProxyHandler.ts
-var OAI_TTS_ENDPOINT_URL = "https://www.openai.fm/api/generate";
-var DEFAULT_AUDIO_FORMAT2 = "mp3";
-var VOICE_LIST2 = [
-  "alloy",
-  "ash",
-  "ballad",
-  "coral",
-  "echo",
-  "fable",
-  "nova",
-  "onyx",
-  "sage",
-  "shimmer"
-];
-var DEFAULT_PROMPT = `Voice Affect: Calm, composed, and reassuring; project quiet authority and confidence, BBC reporter host accent.
-Tone: Sincere, empathetic, and gently authoritative\u2014express genuine apology while conveying competence.
-Pacing: Steady and moderate; unhurried enough to communicate care, yet efficient enough to demonstrate professionalism.
-Emotion: Genuine empathy and understanding; speak with warmth, especially during apologies ("I'm very sorry for any disruption...").
-Pronunciation: Clear and precise, emphasizing key reassurances ("smoothly," "quickly," "promptly") to reinforce confidence.
-Pauses: Brief pauses after offering assistance or requesting details, highlighting willingness to listen and support.`;
-async function OaiProxyDownloader(formData) {
-  try {
-    const response = await fetch(OAI_TTS_ENDPOINT_URL, {
-      method: "POST",
-      headers: {
-        // "X-ClientVersion": "4.0.530a 5fe1dc6c",
-        // "X-UserId": "0f04d16a175c411e",
-        // "X-ClientTraceId": ClientId,
-        // "X-MT-Signature": Signature,
-        // "X-HomeGeographicRegion": "en-US",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0",
-        // KEY CHANGE: Use form content type instead of JSON
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "audio/*",
-        "Accept-Encoding": "gzip, deflate, br"
-      },
-      // KEY CHANGE: Send form data as string, not JSON
-      body: formData.toString()
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("TTS API Error:", {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-      console.error("TTS formData:", formData);
-      return new Response(JSON.stringify({
-        error: `TTS API error: ${response.status} ${response.statusText}`,
-        details: errorText
-      }), {
-        status: response.status,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-    }
-    return new Response(response.body, {
-      status: 200,
-      headers: {
-        "Content-Type": response.headers.get("Content-Type") || "audio/mpeg",
-        "Content-Length": response.headers.get("Content-Length") || ""
+// src/adapter.ts
+var env = (c, runtime) => {
+  const global2 = globalThis;
+  const globalEnv = global2?.process?.env;
+  runtime ??= getRuntimeKey2();
+  const runtimeEnvHandlers = {
+    bun: () => globalEnv,
+    node: () => globalEnv,
+    "edge-light": () => globalEnv,
+    deno: () => {
+      return Deno.env.toObject();
+    },
+    // @ts-ignore -- change to work with itty-router
+    workerd: () => c,
+    // On Fastly Compute, you can use the ConfigStore to manage user-defined data.
+    fastly: () => ({}),
+    other: () => ({})
+  };
+  console.log("Runtime detected in env():", runtime);
+  return runtimeEnvHandlers[runtime]();
+};
+var knownUserAgents = {
+  deno: "Deno",
+  bun: "Bun",
+  workerd: "Cloudflare-Workers",
+  node: "Node.js"
+};
+var getRuntimeKey2 = () => {
+  const global2 = globalThis;
+  const userAgentSupported = typeof navigator !== "undefined" && typeof navigator.userAgent === "string";
+  if (userAgentSupported) {
+    for (const [runtimeKey, userAgent] of Object.entries(knownUserAgents)) {
+      if (checkUserAgentEquals(userAgent)) {
+        return runtimeKey;
       }
-    });
-  } catch (error) {
-    console.error("TTS Handler Error:", error);
-    return new Response(JSON.stringify({
-      error: "Internal server error",
-      message: error instanceof Error ? error.message : "Unknown error"
-    }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json"
-      }
-    });
-  }
-}
-async function OaiProxyHandler(req) {
-  const maxChunkSize = 4096;
-  const chunks = splitAndMerge(req.input.trim(), maxChunkSize, "\n");
-  const audioChunks = [];
-  while (chunks.length > 0) {
-    try {
-      const generation = crypto.randomUUID().toString();
-      let voice = req.voice;
-      if (!VOICE_LIST2.includes(voice)) {
-        voice = VOICE_LIST2[0];
-      }
-      const formData = new URLSearchParams({
-        input: chunks.shift(),
-        voice,
-        generation,
-        response_format: req.response_format ?? DEFAULT_AUDIO_FORMAT2,
-        prompt: req.instructions ?? DEFAULT_PROMPT
-      });
-      const audio_chunk = await (await OaiProxyDownloader(formData)).blob();
-      audioChunks.push(audio_chunk);
-    } catch (error) {
-      console.error("TTS Handler Error:", error);
-      return new Response(JSON.stringify({
-        error: "Internal server error",
-        message: error instanceof Error ? error.message : "Unknown error"
-      }), {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
     }
   }
-  const concatenatedAudio = new Blob(audioChunks, {
-    type: "audio/mpeg"
-  });
-  const response = new Response(concatenatedAudio, {
-    headers: {
-      "Content-Type": "audio/mpeg",
-      ...makeCORSHeaders()
-    }
-  });
-  return response;
-}
+  if (typeof global2?.EdgeRuntime === "string") {
+    return "edge-light";
+  }
+  if (global2?.fastly !== void 0) {
+    return "fastly";
+  }
+  if (global2?.process?.release?.name === "node") {
+    return "node";
+  }
+  return "other";
+};
+var checkUserAgentEquals = (platform) => {
+  const userAgent = navigator.userAgent;
+  return userAgent.startsWith(platform);
+};
 
 // src/openai/audio/speech/TTSProxyHandler.ts
-async function ttsProxyHandler(rawReq) {
-  const req = await rawReq.json();
+async function ttsProxyHandler(rawReq, ctx) {
+  const { TTS_ENDPOINT, TTS_API_KEY } = env(ctx);
+  var ENV_TTS_ENDPOINT = TTS_ENDPOINT;
+  var ENV_TTS_API_KEY = TTS_API_KEY;
+  const json = await rawReq.json();
+  const req = json;
   const headers = rawReq.headers;
   const apiParam = getToken(headers);
   if (apiParam == null) {
@@ -1245,12 +1279,39 @@ async function ttsProxyHandler(rawReq) {
     });
   }
   if (req.model === "tts-1") {
-    return OaiProxyHandler(req);
+    if (!ENV_TTS_ENDPOINT || !ENV_TTS_API_KEY) {
+      return new Response("Internal Server Error: Missing TTS_ENDPOINT or TTS_API_KEY", {
+        status: 500
+      });
+    }
+    const newHeaders = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${ENV_TTS_API_KEY}`
+    });
+    const remote_url = `${ENV_TTS_ENDPOINT}/v1/audio/speech`;
+    const new_req = new Request(remote_url, {
+      method: "POST",
+      headers: newHeaders,
+      body: JSON.stringify(json)
+    });
+    const res = await fetch(remote_url, {
+      method: "POST",
+      headers: newHeaders,
+      body: JSON.stringify(json),
+      // @ts-ignore - Node.js specific, ignored by other runtimes
+      duplex: "half"
+    });
+    if (res.status !== 200) {
+      return new Response("Internal Server Error", {
+        status: 500
+      });
+    }
+    return res;
   }
   return EdgeProxyHandler(req);
 }
 
-// ../../../.cache/deno/npm/registry.npmjs.org/eventsource-parser/3.0.1/dist/index.js
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/index.js
 var ParseError = class extends Error {
   constructor(message, options) {
     super(message), this.name = "ParseError", this.type = options.type, this.field = options.field, this.value = options.value, this.line = options.line;
@@ -1338,7 +1399,7 @@ function splitLines(chunk) {
     const crIndex = chunk.indexOf("\r", searchIndex), lfIndex = chunk.indexOf(`
 `, searchIndex);
     let lineEnd = -1;
-    if (crIndex !== -1 && lfIndex !== -1 ? lineEnd = Math.min(crIndex, lfIndex) : crIndex !== -1 ? lineEnd = crIndex : lfIndex !== -1 && (lineEnd = lfIndex), lineEnd === -1) {
+    if (crIndex !== -1 && lfIndex !== -1 ? lineEnd = Math.min(crIndex, lfIndex) : crIndex !== -1 ? crIndex === chunk.length - 1 ? lineEnd = -1 : lineEnd = crIndex : lfIndex !== -1 && (lineEnd = lfIndex), lineEnd === -1) {
       incompleteLine = chunk.slice(searchIndex);
       break;
     } else {
@@ -1353,7 +1414,7 @@ function splitLines(chunk) {
   ];
 }
 
-// ../../../.cache/deno/npm/registry.npmjs.org/eventsource-parser/3.0.1/dist/stream.js
+// ../../../../Library/Caches/deno/npm/registry.npmjs.org/eventsource-parser/3.0.6/dist/stream.js
 var EventSourceParserStream = class extends TransformStream {
   constructor({ onError, onRetry, onComment } = {}) {
     let parser;
@@ -1722,7 +1783,7 @@ async function chatProxyHandler(rawReq) {
 }
 
 // src/openai/embeddingProxyHandler.ts
-var GEMINI_EMBEDDING_MODEL = "text-embedding-004";
+var GEMINI_EMBEDDING_MODEL = "gemini-embedding-001";
 var BATCH_SIZE = 100;
 async function embeddingProxyHandler(rawReq) {
   const req = await rawReq.json();
@@ -1826,9 +1887,23 @@ var modelDetail = (model) => {
 };
 
 // src/app.ts
-var { preflight, corsify } = e({
+var { preflight } = e({
   allowHeaders: "*"
 });
+var corsify = (response, request) => {
+  if (response?.headers?.get("access-control-allow-origin") || response.status === 101) {
+    return response;
+  }
+  const origin = request?.headers?.get("origin") || "*";
+  const newHeaders = new Headers(response.headers);
+  newHeaders.append("access-control-allow-origin", origin);
+  newHeaders.append("access-control-allow-methods", "*");
+  newHeaders.append("access-control-allow-headers", "*");
+  return new Response(response.body, {
+    status: response.status,
+    headers: newHeaders
+  });
+};
 var app = r({
   before: [
     preflight,

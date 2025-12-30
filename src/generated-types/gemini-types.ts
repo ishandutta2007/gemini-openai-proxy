@@ -195,11 +195,13 @@ export interface components {
             readonly citationMetadata?: components["schemas"]["CitationMetadata"];
             /** @description Output only. Generated content returned from the model. */
             readonly content?: components["schemas"]["Content"];
+            /** @description Optional. Output only. Details the reason why the model stopped generating tokens. This is populated only when `finish_reason` is set. */
+            readonly finishMessage?: string;
             /**
              * @description Optional. Output only. The reason why the model stopped generating tokens. If empty, the model has not stopped generating tokens.
              * @enum {string}
              */
-            readonly finishReason?: "FINISH_REASON_UNSPECIFIED" | "STOP" | "MAX_TOKENS" | "SAFETY" | "RECITATION" | "LANGUAGE" | "OTHER" | "BLOCKLIST" | "PROHIBITED_CONTENT" | "SPII" | "MALFORMED_FUNCTION_CALL" | "IMAGE_SAFETY";
+            readonly finishReason?: "FINISH_REASON_UNSPECIFIED" | "STOP" | "MAX_TOKENS" | "SAFETY" | "RECITATION" | "LANGUAGE" | "OTHER" | "BLOCKLIST" | "PROHIBITED_CONTENT" | "SPII" | "MALFORMED_FUNCTION_CALL" | "IMAGE_SAFETY" | "IMAGE_PROHIBITED_CONTENT" | "IMAGE_OTHER" | "NO_IMAGE" | "IMAGE_RECITATION" | "UNEXPECTED_TOOL_CALL" | "TOO_MANY_TOOL_CALLS" | "MISSING_THOUGHT_SIGNATURE";
             /** @description Output only. Attribution information for sources that contributed to a grounded answer. This field is populated for `GenerateAnswer` calls. */
             readonly groundingAttributions?: components["schemas"]["GroundingAttribution"][];
             /** @description Output only. Grounding metadata for the candidate. This field is populated for `GenerateContent` calls. */
@@ -263,6 +265,18 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description Computer Use tool type. */
+        ComputerUse: {
+            /**
+             * @description Required. The environment being operated.
+             * @enum {string}
+             */
+            environment?: "ENVIRONMENT_UNSPECIFIED" | "ENVIRONMENT_BROWSER";
+            /** @description Optional. By default, predefined functions are included in the final model call. Some of them can be explicitly excluded from being automatically included. This can serve two purposes: 1. Using a more restricted / different action space. 2. Improving the definitions / instructions of predefined functions. */
+            excludedPredefinedFunctions?: string[];
+        } & {
+            [key: string]: unknown;
+        };
         /** @description The base structured datatype containing multi-part content of a message. A `Content` includes a `role` field designating the producer of the `Content` and a `parts` field containing multi-part data that contains the content of the message turn. */
         Content: {
             /** @description Ordered `Parts` that constitute a single message. Parts may have different MIME types. */
@@ -274,7 +288,9 @@ export interface components {
         };
         /** @description A list of floats representing an embedding. */
         ContentEmbedding: {
-            /** @description The embedding values. */
+            /** @description This field stores the soft tokens tensor frame shape (e.g. [1, 1, 256, 2048]). */
+            shape?: number[];
+            /** @description The embedding values. This is for 3P users only and will not be populated for 1P calls. */
             values?: number[];
         } & {
             [key: string]: unknown;
@@ -350,6 +366,20 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description The FileSearch tool that retrieves knowledge from Semantic Retrieval corpora. Files are imported to Semantic Retrieval corpora using the ImportFile API. */
+        FileSearch: {
+            /** @description Required. The names of the file_search_stores to retrieve from. Example: `fileSearchStores/my-file-search-store-123` */
+            fileSearchStoreNames?: string[];
+            /** @description Optional. Metadata filter to apply to the semantic retrieval documents and chunks. */
+            metadataFilter?: string;
+            /**
+             * Format: int32
+             * @description Optional. The number of semantic retrieval chunks to retrieve.
+             */
+            topK?: number;
+        } & {
+            [key: string]: unknown;
+        };
         /** @description A predicted `FunctionCall` returned from the model that contains a string representing the `FunctionDeclaration.name` with the arguments and their values. */
         FunctionCall: {
             /** @description Optional. The function parameters and values in JSON object format. */
@@ -358,14 +388,14 @@ export interface components {
             };
             /** @description Optional. The unique id of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`. */
             id?: string;
-            /** @description Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 63. */
+            /** @description Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64. */
             name?: string;
         } & {
             [key: string]: unknown;
         };
         /** @description Configuration for specifying function calling behavior. */
         FunctionCallingConfig: {
-            /** @description Optional. A set of function names that, when provided, limits the functions the model will call. This should only be set when the Mode is ANY. Function names should match [FunctionDeclaration.name]. With mode set to ANY, model will predict a function call from the set of function names provided. */
+            /** @description Optional. A set of function names that, when provided, limits the functions the model will call. This should only be set when the Mode is ANY or VALIDATED. Function names should match [FunctionDeclaration.name]. When set, model will predict a function call from only allowed function names. */
             allowedFunctionNames?: string[];
             /**
              * @description Optional. Specifies the mode in which function calling should execute. If unspecified, the default value will be set to AUTO.
@@ -384,7 +414,7 @@ export interface components {
             behavior?: "UNSPECIFIED" | "BLOCKING" | "NON_BLOCKING";
             /** @description Required. A brief description of the function. */
             description?: string;
-            /** @description Required. The name of the function. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 63. */
+            /** @description Required. The name of the function. Must be a-z, A-Z, 0-9, or contain underscores, colons, dots, and dashes, with a maximum length of 64. */
             name?: string;
             /** @description Optional. Describes the parameters to this function. Reflects the Open API 3.03 Parameter Object string Key: the name of the parameter. Parameter names are case sensitive. Schema Value: the Schema defining the type used for the parameter. */
             parameters?: components["schemas"]["Schema"];
@@ -401,9 +431,11 @@ export interface components {
         FunctionResponse: {
             /** @description Optional. The id of the function call this response is for. Populated by the client to match the corresponding function call `id`. */
             id?: string;
-            /** @description Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 63. */
+            /** @description Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64. */
             name?: string;
-            /** @description Required. The function response in JSON object format. */
+            /** @description Optional. Ordered `Parts` that constitute a function response. Parts may have different IANA MIME types. */
+            parts?: components["schemas"]["FunctionResponsePart"][];
+            /** @description Required. The function response in JSON object format. Callers can use any keys of their choice that fit the function's syntax to return the function output, e.g. "output", "result", etc. In particular, if the function call failed to execute, the response can have an "error" key to return error details to the model. */
             response?: {
                 [key: string]: unknown;
             };
@@ -417,7 +449,26 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        /** @description Request to generate a completion from the model. NEXT ID: 14 */
+        /** @description Raw media bytes for function response. Text should not be sent as raw bytes, use the 'FunctionResponse.response' field. */
+        FunctionResponseBlob: {
+            /**
+             * Format: byte
+             * @description Raw bytes for media formats.
+             */
+            data?: string;
+            /** @description The IANA standard MIME type of the source data. Examples: - image/png - image/jpeg If an unsupported MIME type is provided, an error will be returned. For a complete list of supported types, see [Supported file formats](https://ai.google.dev/gemini-api/docs/prompting_with_media#supported_file_formats). */
+            mimeType?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description A datatype containing media that is part of a `FunctionResponse` message. A `FunctionResponsePart` consists of data which has an associated datatype. A `FunctionResponsePart` can only contain one of the accepted types in `FunctionResponsePart.data`. A `FunctionResponsePart` must have a fixed IANA MIME type identifying the type and subtype of the media if the `inline_data` field is filled with raw bytes. */
+        FunctionResponsePart: {
+            /** @description Inline media bytes. */
+            inlineData?: components["schemas"]["FunctionResponseBlob"];
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Request to generate a completion from the model. */
         GenerateContentRequest: {
             /** @description Optional. The name of the content [cached](https://ai.google.dev/gemini-api/docs/caching) to use as context to serve the prediction. Format: `cachedContents/{cachedContent}` */
             cachedContent?: string;
@@ -455,6 +506,8 @@ export interface components {
         };
         /** @description Configuration options for model generation and outputs. Not all parameters are configurable for every model. */
         GenerationConfig: {
+            /** @description Optional. Output schema of the generated response. This is an alternative to `response_schema` that accepts [JSON Schema](https://json-schema.org/). If set, `response_schema` must be omitted, but `response_mime_type` is required. While the full JSON Schema may be sent, not all features are supported. Specifically, only the following properties are supported: - `$id` - `$defs` - `$ref` - `$anchor` - `type` - `format` - `title` - `description` - `enum` (for strings and numbers) - `items` - `prefixItems` - `minItems` - `maxItems` - `minimum` - `maximum` - `anyOf` - `oneOf` (interpreted the same as `anyOf`) - `properties` - `additionalProperties` - `required` The non-standard `propertyOrdering` property may also be set. Cyclic references are unrolled to a limited degree and, as such, may only be used within non-required properties. (Nullable properties are not sufficient.) If `$ref` is set on a sub-schema, no other properties, except for than those starting as a `$`, may be set. */
+            _responseJsonSchema?: unknown;
             /**
              * Format: int32
              * @description Optional. Number of generated responses to return. If unset, this will default to 1. Please note that this doesn't work for previous generation models (Gemini 1.0 family)
@@ -469,9 +522,11 @@ export interface components {
              * @description Optional. Frequency penalty applied to the next token's logprobs, multiplied by the number of times each token has been seen in the respponse so far. A positive penalty will discourage the use of tokens that have already been used, proportional to the number of times the token has been used: The more a token is used, the more difficult it is for the model to use that token again increasing the vocabulary of responses. Caution: A _negative_ penalty will encourage the model to reuse tokens proportional to the number of times the token has been used. Small negative values will reduce the vocabulary of a response. Larger negative values will cause the model to start repeating a common token until it hits the max_output_tokens limit.
              */
             frequencyPenalty?: number;
+            /** @description Optional. Config for image generation. An error will be returned if this field is set for models that don't support these config options. */
+            imageConfig?: components["schemas"]["ImageConfig"];
             /**
              * Format: int32
-             * @description Optional. Only valid if response_logprobs=True. This sets the number of top logprobs to return at each decoding step in the Candidate.logprobs_result.
+             * @description Optional. Only valid if response_logprobs=True. This sets the number of top logprobs to return at each decoding step in the Candidate.logprobs_result. The number must be in the range of [0, 20].
              */
             logprobs?: number;
             /**
@@ -489,7 +544,7 @@ export interface components {
              * @description Optional. Presence penalty applied to the next token's logprobs if the token has already been seen in the response. This penalty is binary on/off and not dependant on the number of times the token is used (after the first). Use frequency_penalty for a penalty that increases with each use. A positive penalty will discourage the use of tokens that have already been used in the response, increasing the vocabulary. A negative penalty will encourage the use of tokens that have already been used in the response, decreasing the vocabulary.
              */
             presencePenalty?: number;
-            /** @description Optional. Output schema of the generated response. This is an alternative to `response_schema` that accepts [JSON Schema](https://json-schema.org/). If set, `response_schema` must be omitted, but `response_mime_type` is required. While the full JSON Schema may be sent, not all features are supported. Specifically, only the following properties are supported: - `$id` - `$defs` - `$ref` - `$anchor` - `type` - `format` - `title` - `description` - `enum` (for strings and numbers) - `items` - `prefixItems` - `minItems` - `maxItems` - `minimum` - `maximum` - `anyOf` - `oneOf` (interpreted the same as `anyOf`) - `properties` - `additionalProperties` - `required` The non-standard `propertyOrdering` property may also be set. Cyclic references are unrolled to a limited degree and, as such, may only be used within non-required properties. (Nullable properties are not sufficient.) If `$ref` is set on a sub-schema, no other properties, except for than those starting as a `$`, may be set. */
+            /** @description Optional. An internal detail. Use `responseJsonSchema` rather than this field. */
             responseJsonSchema?: unknown;
             /** @description Optional. If true, export the logprobs results in response. */
             responseLogprobs?: boolean;
@@ -528,6 +583,46 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description Grounding support. */
+        GoogleAiGenerativelanguageV1alphaGroundingSupport: {
+            /** @description Optional. Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. This list must have the same size as the grounding_chunk_indices. */
+            confidenceScores?: number[];
+            /** @description Optional. A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim. */
+            groundingChunkIndices?: number[];
+            /** @description Segment of the content this support belongs to. */
+            segment?: components["schemas"]["GoogleAiGenerativelanguageV1alphaSegment"];
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Segment of the content. */
+        GoogleAiGenerativelanguageV1alphaSegment: {
+            /**
+             * Format: int32
+             * @description End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.
+             */
+            endIndex?: number;
+            /**
+             * Format: int32
+             * @description The index of a Part object within its parent Content object.
+             */
+            partIndex?: number;
+            /**
+             * Format: int32
+             * @description Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.
+             */
+            startIndex?: number;
+            /** @description The text corresponding to the segment from the response. */
+            text?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description The GoogleMaps Tool that provides geospatial context for the user's query. */
+        GoogleMaps: {
+            /** @description Optional. Whether to return a widget context token in the GroundingMetadata of the response. Developers can use the widget context token to render a Google Maps widget with geospatial context related to the places that the model references in the response. */
+            enableWidget?: boolean;
+        } & {
+            [key: string]: unknown;
+        };
         /** @description GoogleSearch tool type. Tool to support Google Search in Model. Powered by Google. */
         GoogleSearch: {
             /** @description Optional. Filter search results to a specific time range. If customers set a start time, they must set an end time (and vice versa). */
@@ -553,6 +648,10 @@ export interface components {
         };
         /** @description Grounding chunk. */
         GroundingChunk: {
+            /** @description Optional. Grounding chunk from Google Maps. */
+            maps?: components["schemas"]["Maps"];
+            /** @description Optional. Grounding chunk from context retrieved by the file search tool. */
+            retrievedContext?: components["schemas"]["RetrievedContext"];
             /** @description Grounding chunk from the web. */
             web?: components["schemas"]["Web"];
         } & {
@@ -560,10 +659,12 @@ export interface components {
         };
         /** @description Metadata returned to client when grounding is enabled. */
         GroundingMetadata: {
+            /** @description Optional. Resource name of the Google Maps widget context token that can be used with the PlacesContextElement widget in order to render contextual data. Only populated in the case that grounding with Google Maps is enabled. */
+            googleMapsWidgetContextToken?: string;
             /** @description List of supporting references retrieved from specified grounding source. */
             groundingChunks?: components["schemas"]["GroundingChunk"][];
             /** @description List of grounding support. */
-            groundingSupports?: components["schemas"]["GroundingSupport"][];
+            groundingSupports?: components["schemas"]["GoogleAiGenerativelanguageV1alphaGroundingSupport"][];
             /** @description Metadata related to retrieval in the grounding flow. */
             retrievalMetadata?: components["schemas"]["RetrievalMetadata"];
             /** @description Optional. Google search entry for the following-up web searches. */
@@ -582,17 +683,6 @@ export interface components {
             readonly partIndex?: number;
             /** @description Output only. ID of the passage matching the `GenerateAnswerRequest`'s `GroundingPassage.id`. */
             readonly passageId?: string;
-        } & {
-            [key: string]: unknown;
-        };
-        /** @description Grounding support. */
-        GroundingSupport: {
-            /** @description Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. This list must have the same size as the grounding_chunk_indices. */
-            confidenceScores?: number[];
-            /** @description A list of indices (into 'grounding_chunk') specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim. */
-            groundingChunkIndices?: number[];
-            /** @description Segment of the content this support belongs to. */
-            segment?: components["schemas"]["Segment"];
         } & {
             [key: string]: unknown;
         };
@@ -621,6 +711,15 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description Config for image generation features. */
+        ImageConfig: {
+            /** @description Optional. The aspect ratio of the image to generate. Supported aspect ratios: 1:1, 2:3, 3:2, 3:4, 4:3, 9:16, 16:9, 21:9. If not specified, the model will choose a default aspect ratio based on any reference images provided. */
+            aspectRatio?: string;
+            /** @description Optional. Specifies the size of generated images. Supported values are `1K`, `2K`, `4K`. If not specified, the model will use default value `1K`. */
+            imageSize?: string;
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Represents a time interval, encoded as a Timestamp start (inclusive) and a Timestamp end (exclusive). The start must be less than or equal to the end. When the start equals the end, the interval is empty (matches no time). When both start and end are unspecified, the interval matches any time. */
         Interval: {
             /**
@@ -633,6 +732,21 @@ export interface components {
              * @description Optional. Inclusive start of the interval. If specified, a Timestamp matching this interval will have to be the same or after the start.
              */
             startTime?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description An object that represents a latitude/longitude pair. This is expressed as a pair of doubles to represent degrees latitude and degrees longitude. Unless specified otherwise, this object must conform to the WGS84 standard. Values must be within normalized ranges. */
+        LatLng: {
+            /**
+             * Format: double
+             * @description The latitude in degrees. It must be in the range [-90.0, +90.0].
+             */
+            latitude?: number;
+            /**
+             * Format: double
+             * @description The longitude in degrees. It must be in the range [-180.0, +180.0].
+             */
+            longitude?: number;
         } & {
             [key: string]: unknown;
         };
@@ -649,6 +763,11 @@ export interface components {
         LogprobsResult: {
             /** @description Length = total number of decoding steps. The chosen candidates may or may not be in top_candidates. */
             chosenCandidates?: components["schemas"]["LogprobsResultCandidate"][];
+            /**
+             * Format: float
+             * @description Sum of log probabilities for all tokens.
+             */
+            logProbabilitySum?: number;
             /** @description Length = total number of decoding steps. */
             topCandidates?: components["schemas"]["TopCandidates"][];
         } & {
@@ -668,6 +787,37 @@ export interface components {
              * @description The candidate’s token id value.
              */
             tokenId?: number;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description A grounding chunk from Google Maps. A Maps chunk corresponds to a single place. */
+        Maps: {
+            /** @description Sources that provide answers about the features of a given place in Google Maps. */
+            placeAnswerSources?: components["schemas"]["PlaceAnswerSources"];
+            /** @description This ID of the place, in `places/{place_id}` format. A user can use this ID to look up that place. */
+            placeId?: string;
+            /** @description Text description of the place answer. */
+            text?: string;
+            /** @description Title of the place. */
+            title?: string;
+            /** @description URI reference of the place. */
+            uri?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description A MCPServer is a server that can be called by the model to perform actions. It is a server that implements the MCP protocol. Next ID: 5 */
+        McpServer: {
+            /** @description The name of the MCPServer. */
+            name?: string;
+            /** @description A transport that can stream HTTP requests and responses. */
+            streamableHttpTransport?: components["schemas"]["StreamableHttpTransport"];
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Media resolution for the input media. */
+        MediaResolution: {
+            /** @enum {string} */
+            level?: "MEDIA_RESOLUTION_UNSPECIFIED" | "MEDIA_RESOLUTION_LOW" | "MEDIA_RESOLUTION_MEDIUM" | "MEDIA_RESOLUTION_HIGH" | "MEDIA_RESOLUTION_ULTRA_HIGH";
         } & {
             [key: string]: unknown;
         };
@@ -718,6 +868,8 @@ export interface components {
              * @description Controls the randomness of the output. Values can range over `[0.0,max_temperature]`, inclusive. A higher value will produce responses that are more varied, while a value closer to `0.0` will typically result in less surprising responses from the model. This value specifies default to be used by the backend while making the call to the model.
              */
             temperature?: number;
+            /** @description Whether the model supports thinking. */
+            thinking?: boolean;
             /**
              * Format: int32
              * @description For Top-k sampling. Top-k sampling considers the set of `top_k` most probable tokens. This value specifies default to be used by the backend while making the call to the model. If empty, indicates the model doesn't use top-k sampling, and `top_k` isn't allowed as a generation parameter.
@@ -773,6 +925,12 @@ export interface components {
             functionResponse?: components["schemas"]["FunctionResponse"];
             /** @description Inline media bytes. */
             inlineData?: components["schemas"]["Blob"];
+            /** @description Optional. Media resolution for the input media. */
+            mediaResolution?: components["schemas"]["MediaResolution"];
+            /** @description Custom metadata associated with the Part. Agents using genai.Part as content representation may need to keep track of the additional information. For example it can be name of a file/source from which the Part originates or a way to multiplex multiple Part streams. */
+            partMetadata?: {
+                [key: string]: unknown;
+            };
             /** @description Inline text. */
             text?: string;
             /** @description Optional. Indicates if the part is thought from the model. */
@@ -784,6 +942,13 @@ export interface components {
             thoughtSignature?: string;
             /** @description Optional. Video metadata. The metadata should only be specified while the video data is presented in inline_data or file_data. */
             videoMetadata?: components["schemas"]["VideoMetadata"];
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Collection of sources that provide answers about the features of a given place in Google Maps. Each PlaceAnswerSources message corresponds to a specific place in Google Maps. The Google Maps tool used these sources in order to answer questions about features of the place (e.g: "does Bar Foo have Wifi" or "is Foo Bar wheelchair accessible?"). Currently we only support review snippets as sources. */
+        PlaceAnswerSources: {
+            /** @description Snippets of reviews that are used to generate answers about the features of a given place in Google Maps. */
+            reviewSnippets?: components["schemas"]["ReviewSnippet"][];
         } & {
             [key: string]: unknown;
         };
@@ -806,6 +971,15 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description Retrieval config. */
+        RetrievalConfig: {
+            /** @description Optional. The language code of the user. Language code for content. Use language tags defined by [BCP47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt). */
+            languageCode?: string;
+            /** @description Optional. The location of the user. */
+            latLng?: components["schemas"]["LatLng"];
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Metadata related to retrieval in the grounding flow. */
         RetrievalMetadata: {
             /**
@@ -813,6 +987,30 @@ export interface components {
              * @description Optional. Score indicating how likely information from google search could help answer the prompt. The score is in the range [0, 1], where 0 is the least likely and 1 is the most likely. This score is only populated when google search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger google search.
              */
             googleSearchDynamicRetrievalScore?: number;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Chunk from context retrieved by the file search tool. */
+        RetrievedContext: {
+            /** @description Optional. Name of the `FileSearchStore` containing the document. Example: `fileSearchStores/123` */
+            fileSearchStore?: string;
+            /** @description Optional. Text of the chunk. */
+            text?: string;
+            /** @description Optional. Title of the document. */
+            title?: string;
+            /** @description Optional. URI reference of the semantic retrieval document. */
+            uri?: string;
+        } & {
+            [key: string]: unknown;
+        };
+        /** @description Encapsulates a snippet of a user review that answers a question about the features of a specific place in Google Maps. */
+        ReviewSnippet: {
+            /** @description A link that corresponds to the user review on Google Maps. */
+            googleMapsUri?: string;
+            /** @description The ID of the review snippet. */
+            reviewId?: string;
+            /** @description Title of the review. */
+            title?: string;
         } & {
             [key: string]: unknown;
         };
@@ -858,7 +1056,7 @@ export interface components {
             enum?: string[];
             /** @description Optional. Example of the object. Will only populated when the object is the root. */
             example?: unknown;
-            /** @description Optional. The format of the data. This is used only for primitive datatypes. Supported formats: for NUMBER type: float, double for INTEGER type: int32, int64 for STRING type: enum, date-time */
+            /** @description Optional. The format of the data. Any value is allowed, but most do not trigger any special functionality. */
             format?: string;
             /** @description Optional. Schema of the elements of Type.ARRAY. */
             items?: components["schemas"]["Schema"];
@@ -936,28 +1134,6 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
-        /** @description Segment of the content. */
-        Segment: {
-            /**
-             * Format: int32
-             * @description Output only. End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero.
-             */
-            readonly endIndex?: number;
-            /**
-             * Format: int32
-             * @description Output only. The index of a Part object within its parent Content object.
-             */
-            readonly partIndex?: number;
-            /**
-             * Format: int32
-             * @description Output only. Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero.
-             */
-            readonly startIndex?: number;
-            /** @description Output only. The text corresponding to the segment from the response. */
-            readonly text?: string;
-        } & {
-            [key: string]: unknown;
-        };
         /** @description Identifier for a `Chunk` retrieved via Semantic Retriever specified in the `GenerateAnswerRequest` using `SemanticRetrieverConfig`. */
         SemanticRetrieverChunk: {
             /** @description Output only. Name of the `Chunk` containing the attributed text. Example: `corpora/123/documents/abc/chunks/xyz` */
@@ -1003,6 +1179,29 @@ export interface components {
         } & {
             [key: string]: unknown;
         };
+        /** @description A transport that can stream HTTP requests and responses. Next ID: 6 */
+        StreamableHttpTransport: {
+            /** @description Optional: Fields for authentication headers, timeouts, etc., if needed. */
+            headers?: {
+                [key: string]: string;
+            };
+            /**
+             * Format: google-duration
+             * @description Timeout for SSE read operations.
+             */
+            sseReadTimeout?: string;
+            /** @description Whether to close the client session when the transport closes. */
+            terminateOnClose?: boolean;
+            /**
+             * Format: google-duration
+             * @description HTTP timeout for regular operations.
+             */
+            timeout?: string;
+            /** @description The full URL for the MCPServer endpoint. Example: "https://api.example.com/mcp" */
+            url?: string;
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Config for thinking features. */
         ThinkingConfig: {
             /** @description Indicates whether to include thoughts in the response. If true, thoughts are returned only when available. */
@@ -1012,19 +1211,32 @@ export interface components {
              * @description The number of thoughts tokens that the model should generate.
              */
             thinkingBudget?: number;
+            /**
+             * @description Optional. Controls the maximum depth of the model's internal reasoning process before it produces a response. If not specified, the default is HIGH. Recommended for Gemini 3 or later models. Use with earlier models results in an error.
+             * @enum {string}
+             */
+            thinkingLevel?: "THINKING_LEVEL_UNSPECIFIED" | "MINIMAL" | "LOW" | "MEDIUM" | "HIGH";
         } & {
             [key: string]: unknown;
         };
-        /** @description Tool details that the model may use to generate response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model. */
+        /** @description Tool details that the model may use to generate response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model. Next ID: 14 */
         Tool: {
             /** @description Optional. Enables the model to execute code as part of generation. */
             codeExecution?: components["schemas"]["CodeExecution"];
+            /** @description Optional. Tool to support the model interacting directly with the computer. If enabled, it automatically populates computer-use specific Function Declarations. */
+            computerUse?: components["schemas"]["ComputerUse"];
+            /** @description Optional. FileSearch tool type. Tool to retrieve knowledge from Semantic Retrieval corpora. */
+            fileSearch?: components["schemas"]["FileSearch"];
             /** @description Optional. A list of `FunctionDeclarations` available to the model that can be used for function calling. The model or system does not execute the function. Instead the defined function may be returned as a FunctionCall with arguments to the client side for execution. The model may decide to call a subset of these functions by populating FunctionCall in the response. The next conversation turn may contain a FunctionResponse with the Content.role "function" generation context for the next model turn. */
             functionDeclarations?: components["schemas"]["FunctionDeclaration"][];
+            /** @description Optional. Tool that allows grounding the model's response with geospatial context related to the user's query. */
+            googleMaps?: components["schemas"]["GoogleMaps"];
             /** @description Optional. GoogleSearch tool type. Tool to support Google Search in Model. Powered by Google. */
             googleSearch?: components["schemas"]["GoogleSearch"];
             /** @description Optional. Retrieval tool that is powered by Google search. */
             googleSearchRetrieval?: components["schemas"]["GoogleSearchRetrieval"];
+            /** @description Optional. MCP Servers to connect to. */
+            mcpServers?: components["schemas"]["McpServer"][];
             /** @description Optional. Tool to support URL context retrieval. */
             urlContext?: components["schemas"]["UrlContext"];
         } & {
@@ -1034,6 +1246,8 @@ export interface components {
         ToolConfig: {
             /** @description Optional. Function calling config. */
             functionCallingConfig?: components["schemas"]["FunctionCallingConfig"];
+            /** @description Optional. Retrieval config. */
+            retrievalConfig?: components["schemas"]["RetrievalConfig"];
         } & {
             [key: string]: unknown;
         };
@@ -1208,7 +1422,7 @@ export interface components {
              * @description Status of the url retrieval.
              * @enum {string}
              */
-            urlRetrievalStatus?: "URL_RETRIEVAL_STATUS_UNSPECIFIED" | "URL_RETRIEVAL_STATUS_SUCCESS" | "URL_RETRIEVAL_STATUS_ERROR";
+            urlRetrievalStatus?: "URL_RETRIEVAL_STATUS_UNSPECIFIED" | "URL_RETRIEVAL_STATUS_SUCCESS" | "URL_RETRIEVAL_STATUS_ERROR" | "URL_RETRIEVAL_STATUS_PAYWALL" | "URL_RETRIEVAL_STATUS_UNSAFE";
         } & {
             [key: string]: unknown;
         };
